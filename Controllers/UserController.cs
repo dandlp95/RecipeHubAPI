@@ -13,13 +13,13 @@ namespace RecipeHubAPI.Controllers
 {
     [ApiController]
     [Route("RecipeHub")]
-    public class UserController
+    public class UserController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IUserRepository _dbUser;
         private readonly ITokenService _tokenService;
         protected APIResponse _response;
-        private readonly IException _exceptionHandler;
+        private readonly IExceptionHandler _exceptionHandler;
        public UserController(IMapper mapper, IUserRepository dbUser, ITokenService tokenService, IExceptionHandler exceptionHandler)
         {
             _mapper = mapper;
@@ -41,6 +41,119 @@ namespace RecipeHubAPI.Controllers
                 _response.Result = _mapper.Map<List<UserDTO>>(users);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+        }
+
+        [HttpGet("users/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> GetUserById(int id)
+        {
+            try
+            {
+                if (id < 1)
+                {
+                    throw new RecipeHubException(HttpStatusCode.BadRequest, "Invalid Id.");
+                }
+                User fetchedUser = _dbUser.GetUser(id);
+                if (fetchedUser == null)
+                {
+                    return NotFound(_response);
+                }
+                UserDTO userDTO = _mapper.Map<UserDTO>(fetchedUser);
+                return Ok(userDTO);
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+        }
+
+        [HttpPost("users")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> AddUser([FromBody] UserCreateDTO userCreateDTO)
+        {
+            try
+            {
+                User? user = _mapper.Map<User>(userCreateDTO);
+                await _dbUser.CreateUser(user);
+
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.IsSuccess = true;
+                UserDTO userInfoResponse = _mapper.Map<UserDTO>(user);
+                _response.Result = userInfoResponse;
+                _response.Token = _tokenService.GetToken(user.UserName, user.UserId);
+
+                return Ok(_response);
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+        }
+
+        [HttpPost("users/auth")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public ActionResult<APIResponse> Login([FromBody] UserLogin userInfo)
+        {
+            try
+            {
+                UserDTO? authenticatedUser = _dbUser.Authenticate(userInfo.UserName, userInfo.Password);
+                if (authenticatedUser is null)
+                {
+                    return Unauthorized();
+                }
+                string userToken = _tokenService.GetToken(authenticatedUser.UserName, authenticatedUser.UserId);
+                _response.IsSuccess = true;
+                _response.Token = userToken;
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.Errors = null;
+                _response.Result = authenticatedUser;
+
+                return Ok(_response);
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, _response);
+            }
+        }
+
+        [HttpDelete("users/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> DeleteUser(int userId)
+        {
+            try
+            {
+                await _dbUser.DeleteUser(userId);
+                return NoContent();
             }
             catch (RecipeHubException ex)
             {
