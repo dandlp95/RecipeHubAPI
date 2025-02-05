@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using RecipeHubAPI.Repository.Interface;
 
 namespace RecipeHubAPI.Controllers
 {
@@ -8,7 +9,8 @@ namespace RecipeHubAPI.Controllers
     public class UserController
     {
         private readonly IMapper _mapper;
-
+        private readonly IUserRepository _userRepository;
+        
         
     }
 }
