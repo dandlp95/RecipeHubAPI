@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace JobSeaAPI.Services
+namespace RecipeHubAPI.Services
 {
     public interface IPasswordService
     {

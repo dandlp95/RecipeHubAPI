@@ -17,7 +17,7 @@ namespace RecipeHubAPI.Repository.Implementations
             dbSet = _db.Set<T>();
         }
 
-        protected List<T> GetAll(Expression<Func<T, bool>>? filter = null, Dictionary<string, int>? paginationParams)
+        protected List<T> GetAll(Expression<Func<T, bool>>? filter = null, Dictionary<string, int>? paginationParams = null)
         {
             IQueryable<T> query = dbSet;
 

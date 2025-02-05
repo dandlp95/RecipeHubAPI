@@ -7,10 +7,10 @@ namespace RecipeHubAPI.Models.DTO.User
         [Required]
         public int UserId { get; set; }
         [StringLength(30, ErrorMessage = "Usernames cannot exceed 30 characters.")]
-        public required string Username { get; set; }
+        public string Username { get; set; }
         [EmailAddress(ErrorMessage = "Invalid email format.")]
-        public required string EmailAddress { get; set; }
+        public string EmailAddress { get; set; }
         [DataType(DataType.Password)]
-        public required string Password { get; set; }
+        public string Password { get; set; }
     }
 }

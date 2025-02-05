@@ -1,7 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace JobSeaAPI.Services
+
+namespace RecipeHubAPI.Services
 {
     public class PasswordService : IPasswordService
     {
