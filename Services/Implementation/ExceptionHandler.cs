@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Models;
+using RecipeHubAPI.Services.Interfaces;
 
 namespace RecipeHubAPI.Services.Implementation
 {
-    public class ExceptionHandler
+    public class ExceptionHandler : IExceptionHandler
     {
         public ExceptionHandler() { }
 

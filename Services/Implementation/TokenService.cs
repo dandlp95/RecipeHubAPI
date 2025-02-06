@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RecipeHubAPI.Models;
 using RecipeHubAPI.Repository.Interface;
+using RecipeHubAPI.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace RecipeHubAPI.Services.Implementation
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
@@ -68,7 +69,7 @@ namespace RecipeHubAPI.Services.Implementation
             }
             return null;
         }
-        public ActionResult tokenValidationResponseAction(Claim userIdClaim, int userId, APIResponse response)
+        public ActionResult TokenValidationResponseAction(Claim userIdClaim, int userId, APIResponse response)
         {
             int validateTokenResponse = ValidateUserIdToken(userIdClaim, userId);
             return HandleValidateUserIdToken(validateTokenResponse, response);
