@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.User;
+using RecipeHubAPI.Models.DTO.UserDTOs;
 using RecipeHubAPI.Repository.Interface;
 using RecipeHubAPI.Services.Interfaces;
 using System.Net;

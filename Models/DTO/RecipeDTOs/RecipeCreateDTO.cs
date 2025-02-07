@@ -1,14 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-// Need to add field for image.
-namespace RecipeHubAPI.Models
+namespace RecipeHubAPI.Models.DTO.Recipe
 {
-    public class Recipe
+    public class RecipeCreateDTO
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RecipeId { get; set; }
         [Required]
         public required string Name { get; set; }
         public required string CookingTime { get; set; }
@@ -16,6 +12,5 @@ namespace RecipeHubAPI.Models
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public required User User { get; set; }
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
     }
 }

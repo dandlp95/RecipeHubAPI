@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RecipeHubAPI.Models.DTO.User
+namespace RecipeHubAPI.Models.DTO.UserDTOs
 {
     public class UserUpdate
     {
