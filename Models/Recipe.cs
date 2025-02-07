@@ -17,5 +17,7 @@ namespace RecipeHubAPI.Models
         [ForeignKey("UserId")]
         public required User User { get; set; }
         public DateTime CreatedOn { get; set; } = DateTime.Now;
+        public ICollection<GroupRecipe> GroupRecipes { get; set; }
+
     }
 }

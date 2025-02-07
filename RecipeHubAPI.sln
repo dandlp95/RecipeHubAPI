@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeHubAPI", "RecipeHubAPI.csproj", "{95AB69EE-B8F3-4D06-A443-AEE24D6C1A0F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E9A668A3-7E96-4E36-A6D8-E161E1222F00}"
-	ProjectSection(SolutionItems) = preProject
-		MappingConfig.cs = MappingConfig.cs
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

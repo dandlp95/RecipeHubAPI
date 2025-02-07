@@ -15,6 +15,6 @@ namespace RecipeHubAPI.Models
         [Required]
         public int RecipeId { get; set; }
         [ForeignKey("RecipeId")]
-        public Recipe Recipe { get; set; }
+        public required Recipe Recipe { get; set; }
     }
 }

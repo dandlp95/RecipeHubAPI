@@ -11,5 +11,7 @@ namespace RecipeHubAPI.Models
         [Required]
         public required string Name { get; set; }
         public DateTime CreatedDateOn { get; set; } = DateTime.Now;
+
+        public ICollection<GroupRecipe> GroupRecipes { get; set; }
     }
 }

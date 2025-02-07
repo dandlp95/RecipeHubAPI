@@ -1,5 +1,5 @@
 ﻿using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.User;
+using RecipeHubAPI.Models.DTO.UserDTOs;
 
 namespace RecipeHubAPI.Repository.Interface
 {

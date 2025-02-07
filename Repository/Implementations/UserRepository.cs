@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RecipeHubAPI.Database;
 using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.User;
+using RecipeHubAPI.Models.DTO.UserDTOs;
 using RecipeHubAPI.Repository.Interface;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Services;

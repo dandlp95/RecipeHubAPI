@@ -51,7 +51,7 @@ namespace RecipeHubAPI.Repository.Implementations
             dbSet.RemoveRange(entities);
             await _db.SaveChangesAsync();
         }
-        protected async Task<bool> DeleteEntity(T entity)
+        protected async Task<bool> DeleteEntities(T entity)
         {
             if (entity is not null)
             {
