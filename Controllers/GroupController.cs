@@ -74,16 +74,22 @@ namespace RecipeHubAPI.Controllers
             {
                 ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if(tokenValidationResult is not null) { return tokenValidationResult; }
-
-
+                GroupDTO group = _dbGroup.GetGroup(groupId, userId);
+                response.Result = group;
+                response.StatusCode =System.Net.HttpStatusCode.OK;
+                response.Errors = null;
+                response.IsSuccess = true;
+                
+                return Ok(response);
             }
             catch (RecipeHubException ex)
             {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
 
             }
             catch(Exception ex)
             {
-
+                return _exceptionHandler.returnExceptionResponse(ex, response);
             }
         }
     }
