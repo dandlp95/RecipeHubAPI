@@ -6,7 +6,7 @@ namespace RecipeHubAPI.Repository.Interface
 {
     public interface IGroupRepository
     {
-        Task<GroupDTO> CreateGroup(GroupDTO groupDTO);
+        Task<GroupDTO> CreateGroup(GroupUpdate groupDTO);
         List<GroupDTO> GetGroups(int userId, PaginationParams? paginationParams = null);
         GroupDTO GetGroup(int id, int userId);
         Task<GroupDTO> UpdateGroup(GroupUpdate recipeDTO, int groupId,int userId, bool updateAllFields = false);

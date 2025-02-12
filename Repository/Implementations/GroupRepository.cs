@@ -18,10 +18,11 @@ namespace RecipeHubAPI.Repository.Implementations
         {
             _mapper = mapper;
         }
-        public async Task<GroupDTO> CreateGroup(GroupDTO groupDTO)
+        public async Task<GroupDTO> CreateGroup(GroupUpdate groupDTO)
         {
 
-            Group newGroup = new() { Name = groupDTO.Name };
+            //new group automatically sets the created on property to Now
+            Group newGroup = _mapper.Map<Group>(groupDTO);
             await CreateEntity(newGroup);
             GroupDTO newGroupDTO = _mapper.Map<GroupDTO>(newGroup);
 
