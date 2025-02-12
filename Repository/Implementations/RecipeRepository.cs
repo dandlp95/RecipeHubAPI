@@ -52,9 +52,9 @@ namespace RecipeHubAPI.Repository.Implementations
             return recipeDTO;
         }
 
-        public async Task<RecipeDTO> UpdateRecipe(RecipeDTO recipeDTO, int userId, bool updateAllFields = false) 
+        public async Task<RecipeDTO> UpdateRecipe(RecipeUpdate recipeDTO, int userId, int recipeId, bool updateAllFields = false) 
         {
-            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeDTO.RecipeId;
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeId && e.UserId == userId;
             Recipe recipe = GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
 
             await UpdateEntity(recipe, recipeDTO, updateAllFields);
