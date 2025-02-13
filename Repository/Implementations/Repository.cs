@@ -17,7 +17,7 @@ namespace RecipeHubAPI.Repository.Implementations
             dbSet = _db.Set<T>();
         }
 
-        protected List<T> GetAll(Expression<Func<T, bool>>? filter = null, Dictionary<string, int>? paginationParams = null)
+        protected async Task<List<T>> GetAll(Expression<Func<T, bool>>? filter = null, Dictionary<string, int>? paginationParams = null)
         {
             IQueryable<T> query = dbSet;
 
@@ -27,17 +27,17 @@ namespace RecipeHubAPI.Repository.Implementations
             {
                 query = query.Skip((int)paginationParams["skip"]).Take((int)paginationParams["rows"]);
             }
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
-        protected T? GetEntity(Expression<Func<T, bool>>? filter)
+        protected async Task<T?> GetEntity(Expression<Func<T, bool>>? filter)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
         protected async Task<T> CreateEntity(T newEntity)
         {

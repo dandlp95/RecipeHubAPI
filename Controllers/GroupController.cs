@@ -15,13 +15,11 @@ namespace RecipeHubAPI.Controllers
     {
         private readonly IGroupRepository _dbGroup;
         private readonly ITokenService _tokenService;
-        //protected APIResponse _response;
         private readonly IExceptionHandler _exceptionHandler;
 
         public GroupController(IMapper mapper, IGroupRepository db, ITokenService tokenService, IExceptionHandler exceptionHandler)
         {
             _dbGroup = db;
-            //_response = new();
             _tokenService = tokenService;
             _exceptionHandler = exceptionHandler;
         }
@@ -40,7 +38,7 @@ namespace RecipeHubAPI.Controllers
                 if (tokenValidationResult is not null) return tokenValidationResult;
 
                 List<GroupDTO> groups = [];
-                groups = _dbGroup.GetGroups(userId, null);
+                groups = await _dbGroup.GetGroups(userId, null);
 
                 //_response.Result = groups;
                 response.Result = groups;
@@ -72,7 +70,7 @@ namespace RecipeHubAPI.Controllers
             {
                 ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
-                GroupDTO group = _dbGroup.GetGroup(groupId, userId);
+                GroupDTO group = await _dbGroup.GetGroup(groupId, userId);
                 response.Result = group;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
@@ -128,6 +126,7 @@ namespace RecipeHubAPI.Controllers
         [Authorize(Policy = "User")]
         public async Task<ActionResult<APIResponse>> DeleteGroup(int userId, int applicationId)
         {
+            await _dbGroup.UpdateGroup(new GroupUpdate(), applicationId, userId, false);
             APIResponse response = new();
             try
             {
@@ -147,5 +146,37 @@ namespace RecipeHubAPI.Controllers
             }
 
         }
+        [HttpPut("users/{userId}/groups/{groupId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Policy = "User")]
+        public async Task<ActionResult<APIResponse>> UpdateGroup(int userId, int groupId, [FromBody] GroupUpdate groupDto)
+        {
+            APIResponse response = new();
+            try
+            {
+                ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
+                if (tokenValidationResult is not null) { return tokenValidationResult; }
+
+                GroupDTO updatedGroup = await _dbGroup.UpdateGroup(groupDto, groupId, userId, false);
+
+                response.Result = updatedGroup;
+                response.StatusCode = System.Net.HttpStatusCode.OK;
+                response.Errors = null;
+                response.IsSuccess = true;
+
+                return Ok(response);
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+        }
     }
 }
+
