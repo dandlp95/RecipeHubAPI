@@ -37,7 +37,7 @@ namespace RecipeHubAPI.Controllers
         {
             try
             {
-                IEnumerable<User> users = _dbUser.GetAllUsers();
+                IEnumerable<User> users = await _dbUser.GetAllUsers();
                 _response.Result = _mapper.Map<List<UserDTO>>(users);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -65,7 +65,7 @@ namespace RecipeHubAPI.Controllers
                 {
                     throw new RecipeHubException(HttpStatusCode.BadRequest, "Invalid Id.");
                 }
-                User fetchedUser = _dbUser.GetUser(id);
+                User fetchedUser = await _dbUser.GetUser(id);
                 if (fetchedUser == null)
                 {
                     return NotFound(_response);
@@ -115,11 +115,11 @@ namespace RecipeHubAPI.Controllers
         [HttpPost("users/auth")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public ActionResult<APIResponse> Login([FromBody] UserLogin userInfo)
+        public async Task<ActionResult<APIResponse>> Login([FromBody] UserLogin userInfo)
         {
             try
             {
-                UserDTO? authenticatedUser = _dbUser.Authenticate(userInfo.UserName, userInfo.Password);
+                UserDTO? authenticatedUser = await _dbUser.Authenticate(userInfo.UserName, userInfo.Password);
                 if (authenticatedUser is null)
                 {
                     return Unauthorized();
