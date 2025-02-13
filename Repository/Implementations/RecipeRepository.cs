@@ -27,7 +27,7 @@ namespace RecipeHubAPI.Repository.Implementations
             return newRecipeDTO;
         }
 
-        public List<RecipeDTO> GetRecipes(int userId, int? groupdId = null, PaginationParams? paginationParams = null)
+        public async Task<List<RecipeDTO>> GetRecipes(int userId, int? groupdId = null, PaginationParams? paginationParams = null)
         {
             // Not sure if I will implement pagination for now...
             List<Recipe> results = [];
@@ -40,14 +40,14 @@ namespace RecipeHubAPI.Repository.Implementations
             {
                 filter = entity => entity.GroupRecipes.Any(rg => rg.GroupId == groupdId);
             }
-            results = GetAll(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
+            results = await GetAll(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
             List<RecipeDTO> resultsDTO = _mapper.Map<List<RecipeDTO>>(results);
             return resultsDTO;
         }
-        public RecipeDTO GetRecipe(int id, int userId)
+        public async Task<RecipeDTO> GetRecipe(int id, int userId)
         {
             Expression<Func<Recipe, bool>> filter = e => e.UserId == userId && e.RecipeId == id;
-            Recipe recipe = GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
+            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(recipe);
             return recipeDTO;
         }
@@ -55,7 +55,7 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task<RecipeDTO> UpdateRecipe(RecipeUpdate recipeDTO, int userId, int recipeId, bool updateAllFields = false) 
         {
             Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeId && e.UserId == userId;
-            Recipe recipe = GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
+            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
 
             await UpdateEntity(recipe, recipeDTO, updateAllFields);
             RecipeDTO recipeUpdate = _mapper.Map<RecipeDTO>(recipe);
@@ -65,7 +65,7 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task DeleteRecipe(int id, int userId)
         {
             Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id && e.UserId == userId;
-            Recipe recipe = GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database");
+            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database");
             await DeleteEntities(recipe);
         }
 

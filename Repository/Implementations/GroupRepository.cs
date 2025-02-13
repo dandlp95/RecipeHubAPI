@@ -28,24 +28,24 @@ namespace RecipeHubAPI.Repository.Implementations
 
             return newGroupDTO;
         }
-        public List<GroupDTO> GetGroups(int userId, PaginationParams? paginationParams = null)
+        public async Task<List<GroupDTO>> GetGroups(int userId, PaginationParams? paginationParams = null)
         {
             Expression<Func<Group, bool>> filter = entities => entities.UserId == userId;
-            List<Group> groups = GetAll(filter);
+            List<Group> groups = await GetAll(filter);
             List<GroupDTO> groupsDTO = _mapper.Map<List<GroupDTO>>(groups);
             return groupsDTO;
         }
-        public GroupDTO GetGroup(int id, int userId) 
+        public async Task<GroupDTO> GetGroup(int id, int userId) 
         {
             Expression<Func<Group, bool>> filter = entities => entities.UserId == userId && entities.GroupId == id;
-            Group group = GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
+            Group group = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
             GroupDTO groupDTO = _mapper.Map<GroupDTO>(group);
             return groupDTO;
         }
         public async Task<GroupDTO> UpdateGroup(GroupUpdate groupDTOUpdate, int groupId, int userId, bool updateAllFields = false)
         {
             Expression<Func<Group, bool>> expression = entities => entities.GroupId == groupId;
-            Group group = GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
+            Group group = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
             await UpdateEntity(group, groupDTOUpdate, updateAllFields);
             GroupDTO groupDTO = _mapper.Map<GroupDTO>(group);
             return groupDTO;
@@ -53,7 +53,7 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task DeleteGroup(int groupId, int userId)
         {
             Expression<Func<Group, bool>> expression = entities => entities.GroupId == groupId;
-            Group group = GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
+            Group group = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
             await DeleteEntities(group);
         }
 
