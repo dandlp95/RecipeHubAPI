@@ -13,7 +13,6 @@ namespace RecipeHubAPI.Controllers
     [Route("RecipeHub")]
     public class GroupController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly IGroupRepository _dbGroup;
         private readonly ITokenService _tokenService;
         //protected APIResponse _response;
@@ -21,7 +20,6 @@ namespace RecipeHubAPI.Controllers
 
         public GroupController(IMapper mapper, IGroupRepository db, ITokenService tokenService, IExceptionHandler exceptionHandler)
         {
-            _mapper = mapper;
             _dbGroup = db;
             //_response = new();
             _tokenService = tokenService;
@@ -149,7 +147,5 @@ namespace RecipeHubAPI.Controllers
             }
 
         }
-
-
     }
 }

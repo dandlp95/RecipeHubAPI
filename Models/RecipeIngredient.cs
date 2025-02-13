@@ -9,9 +9,7 @@ namespace RecipeHubAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RecipeIngredientId { get; set; }
         [Required]
-        public int IngredientId { get; set; }
-        [ForeignKey("IngredientId")]
-        public required Ingredient Ingredient { get; set; }
+        public required string IngredientName { get; set; }
         [Required]
         public int RecipeId { get; set; }
         [ForeignKey("RecipeId")]
@@ -21,5 +19,6 @@ namespace RecipeHubAPI.Models
         [ForeignKey("MeasurementUnitId")]
         public required MeasurementUnit MeasurementUnit { get; set; }
         public int QuantityNumber { get; set; }
+        public required int SortOrder { get; set; }
     }
 }

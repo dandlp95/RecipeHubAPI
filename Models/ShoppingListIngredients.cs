@@ -13,10 +13,7 @@ namespace RecipeHubAPI.Models
         public int ShoppingListId { get; set; }
         [ForeignKey("ShoppingListId")]
         public required ShoppingList ShoppingList { get; set; }
-        [Required]
-        public int IngredientId { get; set; }
-        [ForeignKey("IngredientId")]
-        public required Ingredient Ingredient { get; set; }
+        public required string Ingredient {  get; set; }
         [Required]
         public int MeasurementUnitId { get; set; }
         [ForeignKey("MeasurementUnitId")]

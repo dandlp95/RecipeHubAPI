@@ -62,7 +62,7 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task DeleteUser(int userId)
         {
             User user = GetEntity(user => user.UserId == userId) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
-            if (user is not null) await DeleteEntity(user);
+            if (user is not null) await DeleteEntities(user);
         }
     }
 }

@@ -10,5 +10,7 @@ namespace RecipeHubAPI.Models
         public int MeasurementUnitId {  get; set; }
         [Required]
         public required string Name { get; set; }
+        [Required]
+        public required string Abbreviation { get; set; }
     }
 }
