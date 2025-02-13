@@ -34,7 +34,7 @@ namespace RecipeHubAPI.Controllers
             APIResponse response = new();
             try
             {
-                ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
+                ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) return tokenValidationResult;
 
                 List<GroupDTO> groups = [];
@@ -68,7 +68,7 @@ namespace RecipeHubAPI.Controllers
             APIResponse response = new();
             try
             {
-                ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
+                ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
                 GroupDTO group = await _dbGroup.GetGroup(groupId, userId);
                 response.Result = group;
@@ -98,7 +98,7 @@ namespace RecipeHubAPI.Controllers
             APIResponse response = new();
             try
             {
-                ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
+                ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
                 GroupDTO createdGroup = await _dbGroup.CreateGroup(newGroup);
 
@@ -130,7 +130,7 @@ namespace RecipeHubAPI.Controllers
             APIResponse response = new();
             try
             {
-                ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
+                ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
                 await _dbGroup.DeleteGroup(userId, applicationId);
 
@@ -156,7 +156,7 @@ namespace RecipeHubAPI.Controllers
             APIResponse response = new();
             try
             {
-                ActionResult tokenValidationResult = _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
+                ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
 
                 GroupDTO updatedGroup = await _dbGroup.UpdateGroup(groupDto, groupId, userId, false);

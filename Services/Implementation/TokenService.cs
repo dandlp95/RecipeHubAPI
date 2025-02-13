@@ -42,13 +42,13 @@ namespace RecipeHubAPI.Services.Implementation
                 signingCredentials: new SigningCredentials(Key, SecurityAlgorithms.HmacSha256));
             return new JwtSecurityTokenHandler().WriteToken(Token);
         }
-        public int ValidateUserIdToken(Claim userIdClaim, int userId)
+        public async Task<int> ValidateUserIdToken(Claim userIdClaim, int userId)
         {
             if (Int32.TryParse(userIdClaim?.Value, out int userIdClaimValue))
             {
                 // Add logic later to verify their user role.
                 if (userIdClaimValue != userId) return -1;
-                User user = _userRepository.GetUser(userId);
+                User user = await _userRepository.GetUser(userId);
                 return user is not null ? 1 : 0;
             }
             return 0;
@@ -69,9 +69,9 @@ namespace RecipeHubAPI.Services.Implementation
             }
             return null;
         }
-        public ActionResult TokenValidationResponseAction(Claim userIdClaim, int userId, APIResponse response)
+        public async Task<ActionResult> TokenValidationResponseAction(Claim userIdClaim, int userId, APIResponse response)
         {
-            int validateTokenResponse = ValidateUserIdToken(userIdClaim, userId);
+            int validateTokenResponse = await ValidateUserIdToken(userIdClaim, userId);
             return HandleValidateUserIdToken(validateTokenResponse, response);
         }
     }
