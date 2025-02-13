@@ -21,9 +21,9 @@ namespace RecipeHubAPI.Repository.Implementations
             _passwordService = passwordHelper;
         }
 
-        public UserDTO? Authenticate(string username, string password)
+        public async Task<UserDTO?> Authenticate(string username, string password)
         {
-            User? foundUser = GetEntity(user => user.UserName == username) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
+            User? foundUser = await GetEntity(user => user.UserName == username) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
             bool match = _passwordService.VerifyPassword(password, foundUser.Password, foundUser.PasswordSalt);
 
             if (match is false)
@@ -34,14 +34,14 @@ namespace RecipeHubAPI.Repository.Implementations
             UserDTO responseUser = _mapper.Map<UserDTO>(foundUser);
             return responseUser;
         }
-        public List<User> GetAllUsers()
+        public async Task<List<User>> GetAllUsers()
         {
-            List<User> users = GetAll();
+            List<User> users = await GetAll();
             return users;
         }
-        public User GetUser(int userId)
+        public async Task<User> GetUser(int userId)
         {
-            User user = GetEntity(user => user.UserId == userId) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
+            User user = await GetEntity(user => user.UserId == userId) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
             return user;
         }
         public async Task CreateUser(User user)
@@ -53,7 +53,7 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task<User> UpdateUser(UserUpdate userDTO)
         {
             Expression<Func<User, bool>> expression = entity => entity.UserId == userDTO.UserId;
-            User user = GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "UserId does not match any entity in database.");
+            User user = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "UserId does not match any entity in database.");
 
             await UpdateEntity(user, userDTO);
             return user;
@@ -61,7 +61,7 @@ namespace RecipeHubAPI.Repository.Implementations
 
         public async Task DeleteUser(int userId)
         {
-            User user = GetEntity(user => user.UserId == userId) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
+            User user = await GetEntity(user => user.UserId == userId) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
             if (user is not null) await DeleteEntities(user);
         }
     }
