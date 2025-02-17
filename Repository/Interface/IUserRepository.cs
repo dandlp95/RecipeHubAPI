@@ -5,7 +5,7 @@ namespace RecipeHubAPI.Repository.Interface
 {
     public interface IUserRepository
     {
-        Task<UserDTO?> Authenticate(string username, string password);
+        Task<UserDTO?> Authenticate(UserLogin credentials);
         Task<List<User>> GetAllUsers();
         Task<User> GetUser(int userId);
         Task CreateUser(User user);

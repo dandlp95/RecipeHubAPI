@@ -21,9 +21,18 @@ namespace RecipeHubAPI.Repository.Implementations
             _passwordService = passwordHelper;
         }
 
-        public async Task<UserDTO?> Authenticate(string username, string password)
+        public async Task<UserDTO?> Authenticate(UserLogin credentials)
         {
-            User? foundUser = await GetEntity(user => user.UserName == username) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
+            string? username = credentials.UserName;
+            string? email = credentials.Email;
+            string password = credentials.Password;
+
+            if (username is null && email is null)
+            {
+                throw new RecipeHubException(System.Net.HttpStatusCode.BadRequest, "Username or email must be provided.");
+            }
+
+            User? foundUser = await GetEntity(user => user.UserName == username || user.EmailAddress == email) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "User not found.");
             bool match = _passwordService.VerifyPassword(password, foundUser.Password, foundUser.PasswordSalt);
 
             if (match is false)

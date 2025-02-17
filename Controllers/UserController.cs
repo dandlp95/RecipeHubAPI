@@ -20,7 +20,7 @@ namespace RecipeHubAPI.Controllers
         private readonly ITokenService _tokenService;
         protected APIResponse _response;
         private readonly IExceptionHandler _exceptionHandler;
-       public UserController(IMapper mapper, IUserRepository dbUser, ITokenService tokenService, IExceptionHandler exceptionHandler)
+        public UserController(IMapper mapper, IUserRepository dbUser, ITokenService tokenService, IExceptionHandler exceptionHandler)
         {
             _mapper = mapper;
             _dbUser = dbUser;
@@ -119,7 +119,12 @@ namespace RecipeHubAPI.Controllers
         {
             try
             {
-                UserDTO? authenticatedUser = await _dbUser.Authenticate(userInfo.UserName, userInfo.Password);
+                if (userInfo.Email is null && userInfo.UserName is null)
+                {
+                    throw new RecipeHubException(HttpStatusCode.BadRequest, "Invalid credentials.");
+                }
+
+                UserDTO? authenticatedUser = await _dbUser.Authenticate(userInfo);
                 if (authenticatedUser is null)
                 {
                     return Unauthorized();
@@ -132,6 +137,7 @@ namespace RecipeHubAPI.Controllers
                 _response.Result = authenticatedUser;
 
                 return Ok(_response);
+
             }
             catch (RecipeHubException ex)
             {
