@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RecipeHubAPI.CustomTypes;
 using RecipeHubAPI.Database;
 using RecipeHubAPI.Exceptions;
@@ -14,15 +15,17 @@ namespace RecipeHubAPI.Repository.Implementations
     public class GroupRepository : Repository<Group>, IGroupRepository
     {
         public IMapper _mapper;
-        public GroupRepository(IMapper mapper, ApplicationDbContext _db) : base(_db)
+        public ApplicationDbContext _db;
+        public GroupRepository(IMapper mapper, ApplicationDbContext db) : base(db)
         {
             _mapper = mapper;
+            _db = db;
         }
-        public async Task<GroupDTO> CreateGroup(GroupUpdate groupDTO)
+        public async Task<GroupDTO> CreateGroup(GroupUpdate groupDTO, int userId)
         {
-
             //new group automatically sets the created on property to Now
             Group newGroup = _mapper.Map<Group>(groupDTO);
+            newGroup.UserId = userId;
             await CreateEntity(newGroup);
             GroupDTO newGroupDTO = _mapper.Map<GroupDTO>(newGroup);
 
@@ -31,15 +34,18 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task<List<GroupDTO>> GetGroups(int userId, PaginationParams? paginationParams = null)
         {
             Expression<Func<Group, bool>> filter = entities => entities.UserId == userId;
-            List<Group> groups = await GetAll(filter);
-            List<GroupDTO> groupsDTO = _mapper.Map<List<GroupDTO>>(groups);
-            return groupsDTO;
+            var groupList = await _db.Groups.Where(filter).Select(g => new { g.GroupId, g.Name, TotalRecipes = g.GroupRecipes.Count() }).ToListAsync();
+
+            List<GroupDTO> groupDTOs = groupList.Select(g => new GroupDTO { GroupId = g.GroupId, Name = g.Name, TotalRecipes = g.TotalRecipes }).ToList();
+
+            return groupDTOs;
         }
-        public async Task<GroupDTO> GetGroup(int id, int userId) 
+        public async Task<GroupDTO?> GetGroup(int id, int userId) 
         {
             Expression<Func<Group, bool>> filter = entities => entities.UserId == userId && entities.GroupId == id;
-            Group group = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
-            GroupDTO groupDTO = _mapper.Map<GroupDTO>(group);
+            Group? group = await GetEntity(filter);
+            GroupDTO? groupDTO = _mapper.Map<GroupDTO?>(group);
+            
             return groupDTO;
         }
         public async Task<GroupDTO> UpdateGroup(GroupUpdate groupDTOUpdate, int groupId, int userId, bool updateAllFields = false)

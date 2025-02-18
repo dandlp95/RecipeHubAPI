@@ -34,7 +34,7 @@ namespace RecipeHubAPI.Services.Implementation
             Exception? innerException = ex.InnerException;
 
             response.Result = null;
-            response.Errors = new List<string>() { ex.Message, innerException.ToString() };
+            response.Errors = new List<string>() { ex.Message, innerException is not null ? innerException.ToString() : string.Empty };
             response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
             response.Result = null;
             response.Token = null;

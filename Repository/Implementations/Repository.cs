@@ -16,6 +16,22 @@ namespace RecipeHubAPI.Repository.Implementations
             _db = db;
             dbSet = _db.Set<T>();
         }
+        protected async Task<int> CountEntities(Expression<Func<T, bool>>? filter = null)
+        {
+            IQueryable<T> query = dbSet;
+            int total;
+
+            if (filter is not null)
+            {
+                total = await query.CountAsync(filter);
+            }
+            else
+            {
+                total = await query.CountAsync();
+            }
+
+            return total;
+        }
 
         protected async Task<List<T>> GetAll(Expression<Func<T, bool>>? filter = null, Dictionary<string, int>? paginationParams = null)
         {

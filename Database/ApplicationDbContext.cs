@@ -46,7 +46,6 @@ namespace RecipeHubAPI.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>();
             modelBuilder.Entity<Category>();
             modelBuilder.Entity<GroupRecipe>();
             modelBuilder.Entity<Recipe>();
@@ -54,6 +53,13 @@ namespace RecipeHubAPI.Database
             modelBuilder.Entity<ShoppingList>();
             modelBuilder.Entity<ShoppingListIngredients>();
             modelBuilder.Entity<Step>();
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.EmailAddress)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.UserName)
+                .IsUnique();
 
             modelBuilder.Entity<RecipeCategory>()
                 .HasIndex(rc => new {rc.RecipeId, rc.CategoryId})

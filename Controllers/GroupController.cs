@@ -40,7 +40,6 @@ namespace RecipeHubAPI.Controllers
                 List<GroupDTO> groups = [];
                 groups = await _dbGroup.GetGroups(userId, null);
 
-                //_response.Result = groups;
                 response.Result = groups;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
@@ -70,7 +69,7 @@ namespace RecipeHubAPI.Controllers
             {
                 ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
-                GroupDTO group = await _dbGroup.GetGroup(groupId, userId);
+                GroupDTO? group = await _dbGroup.GetGroup(groupId, userId);
                 response.Result = group;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
@@ -100,7 +99,7 @@ namespace RecipeHubAPI.Controllers
             {
                 ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
-                GroupDTO createdGroup = await _dbGroup.CreateGroup(newGroup);
+                GroupDTO createdGroup = await _dbGroup.CreateGroup(newGroup, userId);
 
                 response.Result = createdGroup;
                 response.StatusCode = System.Net.HttpStatusCode.OK;

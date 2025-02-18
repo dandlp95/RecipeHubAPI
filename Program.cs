@@ -44,6 +44,7 @@ builder.Services.AddTransient<IExceptionHandler, ExceptionHandler>();
 builder.Services.AddTransient<IPasswordService, PasswordService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 
 //// Add services to the container.
 builder.Services.AddAuthentication(
