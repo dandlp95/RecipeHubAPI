@@ -118,20 +118,20 @@ namespace RecipeHubAPI.Controllers
             }
         }
 
-        [HttpDelete("users/{userId}/applications/{applicationId}")]
+        [HttpDelete("users/{userId}/groups/{groupId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "User")]
-        public async Task<ActionResult<APIResponse>> DeleteGroup(int userId, int applicationId)
+        public async Task<ActionResult<APIResponse>> DeleteGroup(int userId, int groupId)
         {
-            await _dbGroup.UpdateGroup(new GroupUpdate(), applicationId, userId, false);
+            //await _dbGroup.UpdateGroup(new GroupUpdate(), groupId, userId, false);
             APIResponse response = new();
             try
             {
                 ActionResult tokenValidationResult = await _tokenService.TokenValidationResponseAction(User.FindFirst("userId"), userId, response);
                 if (tokenValidationResult is not null) { return tokenValidationResult; }
-                await _dbGroup.DeleteGroup(userId, applicationId);
+                await _dbGroup.DeleteGroup(groupId, userId);
 
                 return NoContent();
             }
