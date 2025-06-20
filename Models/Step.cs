@@ -15,6 +15,6 @@ namespace RecipeHubAPI.Models
         [Required]
         public required string Text { get; set; }
         [Required]
-        public int SortOrder { get; set; }
+        public required int SortOrder { get; set; }
     }
 }

@@ -18,10 +18,16 @@ namespace RecipeHubAPI.Repository.Implementations
             _mapper = mapper;
         }
 
-        public async Task<RecipeDTO> CreateRecipe(RecipeCreateDTO recipeCreateDTO)
+        public async Task<RecipeDTO> CreateRecipe(Models.DTO.Recipe.RecipeStepsDTO recipeCreateDTO)
         {
             Recipe recipe = _mapper.Map<Recipe>(recipeCreateDTO);
+            List<Step> steps = _mapper.Map<List<Step>>(recipeCreateDTO.steps);
             await CreateEntity(recipe);
+            if (steps.Count > 0)
+            {
+                await CreateForeignEntities(steps);
+            }
+
             RecipeDTO newRecipeDTO = _mapper.Map<RecipeDTO>(recipe);
 
             return newRecipeDTO;

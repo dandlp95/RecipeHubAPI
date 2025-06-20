@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using RecipeHubAPI.Models.DTO.RecipeDTOs;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RecipeHubAPI.Models.DTO.Recipe
 {
-    public class RecipeCreateDTO
+    public class RecipeStepsDTO
     {
         [Required]
         public required string Name { get; set; }
@@ -12,5 +13,6 @@ namespace RecipeHubAPI.Models.DTO.Recipe
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public required User User { get; set; }
+        public List<StepDTO> steps { get; set; }
     }
 }

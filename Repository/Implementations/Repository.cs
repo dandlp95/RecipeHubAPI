@@ -57,11 +57,26 @@ namespace RecipeHubAPI.Repository.Implementations
         }
         protected async Task<T> CreateEntity(T newEntity)
         {
-            _db.Set<T>().Add(newEntity);
+            dbSet.Add(newEntity);
             await _db.SaveChangesAsync();
             return newEntity;
 
         }
+        protected async Task<List<T>> CreateEntities(List<T> newEntities)
+        {
+            if (newEntities is null || newEntities.Count == 0) throw new Exception("Entities cannot be null or empty.");
+            dbSet.AddRange(newEntities);
+            await _db.SaveChangesAsync();
+            return newEntities;
+        }
+        protected async Task<List<K>> CreateForeignEntities<K>(List<K> newEntities) where K : class
+        {
+            if (newEntities is null || newEntities.Count == 0) throw new Exception("Entities cannot be null or empty.");
+            _db.Set<K>().AddRange(newEntities);
+            await _db.SaveChangesAsync();
+            return newEntities;
+        }
+
         protected async Task DeleteEntities(List<T> entities)
         {
             dbSet.RemoveRange(entities);
