@@ -25,13 +25,11 @@ namespace RecipeHubAPI.Services.Implementation
             var apiURL = _configuration["AppSettings:ApiUrl"];
             var Claims = new List<Claim>
             {
-                new Claim("username", username),
-                new Claim("userId", userId.ToString())
+                new("username", username),
+                new("userId", userId.ToString()),
+                // Adds the correct authorization type based on user role.
+                new(ClaimTypes.Role, isAdmin ? "Admin" : "User")
             };
-
-            // Adds the correct authorization type based on user role.
-            if (isAdmin) Claims.Add(new Claim("type", "admin"));
-            else Claims.Add(new Claim("type", "User"));
 
             var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var Token = new JwtSecurityToken(
@@ -42,7 +40,7 @@ namespace RecipeHubAPI.Services.Implementation
                 signingCredentials: new SigningCredentials(Key, SecurityAlgorithms.HmacSha256));
             return new JwtSecurityTokenHandler().WriteToken(Token);
         }
-        public async Task<int> ValidateUserIdToken(Claim userIdClaim, int userId)
+        private async Task<int> ValidateUserIdToken(Claim userIdClaim, int userId)
         {
             if (Int32.TryParse(userIdClaim?.Value, out int userIdClaimValue))
             {
@@ -53,7 +51,7 @@ namespace RecipeHubAPI.Services.Implementation
             }
             return 0;
         }
-        public ActionResult? HandleValidateUserIdToken(int validateTokenResponse, APIResponse response)
+        private ActionResult? HandleValidateUserIdToken(int validateTokenResponse, APIResponse response)
         {
             if (validateTokenResponse == 0)
             {

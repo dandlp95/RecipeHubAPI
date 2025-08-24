@@ -58,7 +58,7 @@ namespace RecipeHubAPI.Repository.Implementations
         }
         public async Task DeleteGroup(int groupId, int userId)
         {
-            Expression<Func<Group, bool>> expression = entities => entities.GroupId == groupId;
+            Expression<Func<Group, bool>> expression = g => g.GroupId == groupId && g.UserId == userId;
             Group group = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
             await DeleteEntities(group);
         }

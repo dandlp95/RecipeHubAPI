@@ -6,6 +6,7 @@ namespace RecipeHubAPI.Models.DTO.Recipe
 {
     public class RecipeStepsDTO
     {
+        public int RecipeId { get; set; }
         [Required]
         public required string Name { get; set; }
         public required string CookingTime { get; set; }

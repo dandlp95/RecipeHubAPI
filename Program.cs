@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -7,8 +8,11 @@ using RecipeHubAPI.Database;
 using RecipeHubAPI.Repository.Implementations;
 using RecipeHubAPI.Repository.Interface;
 using RecipeHubAPI.Services;
+using RecipeHubAPI.Services.Auth;
 using RecipeHubAPI.Services.Implementation;
 using RecipeHubAPI.Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -18,13 +22,6 @@ string secretKey = builder.Configuration.GetValue<string>("AppSettings:SecretKey
 string ApiUrl = builder.Configuration.GetValue<string>("AppSettings:ApiUrl") ?? throw new Exception("Unable to feth Api Url value");
 string clientUrl = builder.Configuration.GetValue<string>("AppSettings:clientUrl") ?? throw new Exception("Unable to access client url variable");
 
-var TokenValidationParameters = new TokenValidationParameters
-{
-    ValidIssuer = ApiUrl,
-    ValidAudience = ApiUrl,
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-    ClockSkew = TimeSpan.Zero
-};
 
 builder.Services.AddCors(options =>
 {
@@ -46,7 +43,19 @@ builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 
-//// Add services to the container.
+// Optional but removes legacy claim mapping surprises
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+var TokenValidationParameters = new TokenValidationParameters
+{
+    ValidIssuer = ApiUrl,
+    ValidAudience = ApiUrl,
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+    ClockSkew = TimeSpan.Zero,
+    NameClaimType = "userId",
+    RoleClaimType = ClaimTypes.Role,
+};
+
 builder.Services.AddAuthentication(
     options =>
     {
@@ -55,18 +64,21 @@ builder.Services.AddAuthentication(
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     }
     )
-    .AddJwtBearer(cfg =>
+    .AddJwtBearer(options =>
     {
-        cfg.TokenValidationParameters = TokenValidationParameters;
+        options.TokenValidationParameters = TokenValidationParameters;
     });
 
-builder.Services.AddAuthorization(cfg =>
+builder.Services.AddAuthorization(options =>
 {
-    cfg.AddPolicy("User", policy => policy.RequireClaim("type", "User"));
-    cfg.AddPolicy("Admin", policy => policy.RequireClaim("type", "Admin"));
+    options.AddPolicy("User", policy => policy.RequireClaim(ClaimTypes.Role, "User"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+    // Policy not used for now. Used for checking if the user is the same as the one in the route.
+    //options.AddPolicy("SameUserOrAdmin", policy => policy.RequireAuthenticatedUser().AddRequirements(new SameUserRequirement()));
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IAuthorizationHandler, SameUserHandler>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
