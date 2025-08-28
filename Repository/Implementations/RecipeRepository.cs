@@ -34,28 +34,28 @@ namespace RecipeHubAPI.Repository.Implementations
             List<RecipeDTO> resultsDTO = _mapper.Map<List<RecipeDTO>>(results);
             return resultsDTO;
         }
-        public async Task<RecipeDTO> GetRecipe(int id)
+        public async Task<RecipeDTO> GetRecipe(int id, int userId)
         {
-            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id;
-            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id && e.UserId == userId;
+            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Recipe not found or access denied.");
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(recipe);
             return recipeDTO;
         }
 
-        public async Task<RecipeDTO> UpdateRecipe(RecipeDTO recipeDTO, bool updateAllFields = false) 
+        public async Task<RecipeDTO> UpdateRecipe(RecipeDTO recipeDTO, int userId, int recipeId, bool updateAllFields = false) 
         {
-            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeDTO.RecipeId;
-            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeId && e.UserId == userId;
+            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Recipe not found or access denied.");
 
             await UpdateEntity(recipe, recipeDTO, updateAllFields);
             RecipeDTO recipeUpdate = _mapper.Map<RecipeDTO>(recipe);
             return recipeUpdate;
         } 
 
-        public async Task DeleteRecipe(int id)
+        public async Task DeleteRecipe(int id, int userId)
         {
-            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id;
-            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database");
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id && e.UserId == userId;
+            Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Recipe not found or access denied");
             await DeleteEntities(recipe);
         }
 

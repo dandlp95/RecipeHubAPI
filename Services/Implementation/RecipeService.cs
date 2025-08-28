@@ -34,7 +34,7 @@ namespace RecipeHubAPI.Services.Implementation
             });
         }
 
-        public async Task UpdateRecipe(CompleteRecipeDTO completeRecipeDTO)
+        public async Task UpdateRecipe(CompleteRecipeDTO completeRecipeDTO, int userId)
         {
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(completeRecipeDTO);
             List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.Ingredients;
@@ -43,7 +43,7 @@ namespace RecipeHubAPI.Services.Implementation
             await _recipeRepository.ExecuteInTransaction(async () =>
             {
                 // Update recipe
-                await _recipeRepository.UpdateRecipe(recipeDTO);
+                await _recipeRepository.UpdateRecipe(recipeDTO, userId, recipeDTO.RecipeId);
 
                 // Delete old ingredients and steps
                 await _recipeIngredientsRepository.DeleteIngredientsByRecipeId(recipeDTO.RecipeId);
@@ -61,21 +61,21 @@ namespace RecipeHubAPI.Services.Implementation
             });
         }
 
-        public async Task DeleteRecipe(int recipeId)
+        public async Task DeleteRecipe(int recipeId, int userId)
         {
             await _recipeRepository.ExecuteInTransaction(async () =>
             {
-                await _recipeRepository.DeleteRecipe(recipeId);
+                await _recipeRepository.DeleteRecipe(recipeId, userId);
                 await _recipeIngredientsRepository.DeleteIngredientsByRecipeId(recipeId);
                 await _stepsRepository.DeleteStepsByRecipeId(recipeId);
             });
         }
 
-        public async Task<CompleteRecipeDTO> GetRecipeByRecipeId(int recipeId)
+        public async Task<CompleteRecipeDTO> GetRecipeByRecipeId(int recipeId, int userId)
         {
             CompleteRecipeDTO completeRecipeDTO = await _recipeRepository.ExecuteInTransaction(async () =>
             {
-                RecipeDTO recipeDTO = await _recipeRepository.GetRecipe(recipeId);
+                RecipeDTO recipeDTO = await _recipeRepository.GetRecipe(recipeId, userId);
                 List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(recipeId);
                 List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(recipeId);
                 CompleteRecipeDTO completeRecipeDTO = _mapper.Map<CompleteRecipeDTO>(recipeDTO);

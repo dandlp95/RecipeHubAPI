@@ -18,13 +18,15 @@ namespace RecipeHubAPI.Controllers
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IRecipeRepository _dbRecipe;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IRecipeService _recipeService;
 
-        public RecipeController(IMapper mapper, IExceptionHandler exceptionHandler, IRecipeRepository dbRecipe, ICategoryRepository categoryRepository)
+        public RecipeController(IMapper mapper, IExceptionHandler exceptionHandler, IRecipeRepository dbRecipe, ICategoryRepository categoryRepository, IRecipeService recipeService)
         {
             _mapper = mapper;
             _exceptionHandler = exceptionHandler;
             _dbRecipe = dbRecipe;
             _categoryRepository = categoryRepository;
+            _recipeService = recipeService;
         }
         [HttpGet("recipes/{recipeId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -42,8 +44,8 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                RecipeDTO recipe = await _dbRecipe.GetRecipe(recipeId, userId);
-
+                CompleteRecipeDTO recipe = await _recipeService.GetRecipeByRecipeId(recipeId, userId);
+                
                 response.Result = recipe;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
@@ -77,7 +79,7 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                List<RecipeDTO> recipes = await _dbRecipe.GetRecipes(userId, groupId);
+                List<CompleteRecipeDTO> recipes = await _recipeService.GetRecipesByGroupId(userId, groupId);
                 response.Result = recipes;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
@@ -102,7 +104,6 @@ namespace RecipeHubAPI.Controllers
         public async Task<ActionResult<APIResponse>> CreateRecipe([FromBody] CompleteRecipeDTO recipeCreateDTO)
         {
             APIResponse response = new();
-            throw new NotImplementedException();
             try
             {
                 var (isValid, userId, errorResponse) = GetUserIdFromClaims();
@@ -111,12 +112,13 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                // RecipeStepsDTO newRecipe = await _dbRecipe.CreateRecipe(recipeCreateDTO);
-                // response.Result = newRecipe;
-                // response.StatusCode = System.Net.HttpStatusCode.Created;
-                // response.Errors = null;
-                // response.IsSuccess = true;
-                // return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId = newRecipe.RecipeId }, response);
+                recipeCreateDTO.UserId = userId;
+
+                await _recipeService.CreateRecipe(recipeCreateDTO);
+                response.StatusCode = System.Net.HttpStatusCode.Created;
+                response.Errors = null;
+                response.IsSuccess = true;
+                return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId = recipeCreateDTO.RecipeId }, response);
             }
             catch (RecipeHubException ex)
             {
