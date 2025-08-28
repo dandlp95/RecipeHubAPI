@@ -42,6 +42,10 @@ builder.Services.AddTransient<IPasswordService, PasswordService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+builder.Services.AddScoped<IRecipeIngredientsRepository, RecipeIngredientsRepository>();
+builder.Services.AddScoped<IStepsRepository, StepsRepository>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
 
 // Optional but removes legacy claim mapping surprises
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
