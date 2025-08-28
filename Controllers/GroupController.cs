@@ -14,13 +14,11 @@ namespace RecipeHubAPI.Controllers
     public class GroupController : BaseController
     {
         private readonly IGroupRepository _dbGroup;
-        private readonly ITokenService _tokenService;
         private readonly IExceptionHandler _exceptionHandler;
 
-        public GroupController(IMapper mapper, IGroupRepository db, ITokenService tokenService, IExceptionHandler exceptionHandler)
+        public GroupController(IMapper mapper, IGroupRepository db, IExceptionHandler exceptionHandler)
         {
             _dbGroup = db;
-            _tokenService = tokenService;
             _exceptionHandler = exceptionHandler;
         }
 

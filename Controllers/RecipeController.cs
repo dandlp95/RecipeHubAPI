@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Models;
 using RecipeHubAPI.Models.DTO;
-using RecipeHubAPI.Models.DTO.Recipe;
 using RecipeHubAPI.Models.DTO.RecipeDTOs;
 using RecipeHubAPI.Repository.Interface;
 using RecipeHubAPI.Services.Interfaces;
@@ -100,9 +99,10 @@ namespace RecipeHubAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "User")]
-        public async Task<ActionResult<APIResponse>> CreateRecipe([FromBody] RecipeStepsDTO recipeCreateDTO)
+        public async Task<ActionResult<APIResponse>> CreateRecipe([FromBody] CompleteRecipeDTO recipeCreateDTO)
         {
             APIResponse response = new();
+            throw new NotImplementedException();
             try
             {
                 var (isValid, userId, errorResponse) = GetUserIdFromClaims();
@@ -111,12 +111,12 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                RecipeStepsDTO newRecipe = await _dbRecipe.CreateRecipe(recipeCreateDTO);
-                response.Result = newRecipe;
-                response.StatusCode = System.Net.HttpStatusCode.Created;
-                response.Errors = null;
-                response.IsSuccess = true;
-                return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId = newRecipe.RecipeId }, response);
+                // RecipeStepsDTO newRecipe = await _dbRecipe.CreateRecipe(recipeCreateDTO);
+                // response.Result = newRecipe;
+                // response.StatusCode = System.Net.HttpStatusCode.Created;
+                // response.Errors = null;
+                // response.IsSuccess = true;
+                // return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId = newRecipe.RecipeId }, response);
             }
             catch (RecipeHubException ex)
             {

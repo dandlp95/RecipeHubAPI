@@ -2,6 +2,7 @@
 {
     public class StepDTO
     {
+        public int? StepId { get; set; }
         public int RecipeId { get; set; }
         public required string Text { get; set; }
         public required int SortOrder { get; set; }

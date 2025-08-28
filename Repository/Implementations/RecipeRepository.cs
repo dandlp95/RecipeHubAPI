@@ -3,7 +3,6 @@ using RecipeHubAPI.CustomTypes;
 using RecipeHubAPI.Database;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.Recipe;
 using RecipeHubAPI.Models.DTO.RecipeDTOs;
 using RecipeHubAPI.Repository.Interface;
 using System.Linq.Expressions;
@@ -16,22 +15,6 @@ namespace RecipeHubAPI.Repository.Implementations
         public RecipeRepository(ApplicationDbContext db, IMapper mapper) : base(db)
         {
             _mapper = mapper;
-        }
-
-        public async Task<RecipeStepsDTO> CreateRecipe(RecipeStepsDTO recipeCreateDTO)
-        {
-            Recipe recipe = _mapper.Map<Recipe>(recipeCreateDTO);
-            List<Step> steps = _mapper.Map<List<Step>>(recipeCreateDTO.steps);
-            await CreateEntity(recipe);
-            if (steps.Count > 0)
-            {
-                await CreateForeignEntities(steps);
-            }
-
-            RecipeStepsDTO newRecipeDTO = _mapper.Map<RecipeStepsDTO>(recipe);
-            newRecipeDTO.steps = _mapper.Map<List<StepDTO>>(steps);
-
-            return newRecipeDTO;
         }
 
         public async Task<List<RecipeDTO>> GetRecipes(int userId, int? groupdId = null, PaginationParams? paginationParams = null)
@@ -51,17 +34,17 @@ namespace RecipeHubAPI.Repository.Implementations
             List<RecipeDTO> resultsDTO = _mapper.Map<List<RecipeDTO>>(results);
             return resultsDTO;
         }
-        public async Task<RecipeDTO> GetRecipe(int id, int userId)
+        public async Task<RecipeDTO> GetRecipe(int id)
         {
-            Expression<Func<Recipe, bool>> filter = e => e.UserId == userId && e.RecipeId == id;
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id;
             Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(recipe);
             return recipeDTO;
         }
 
-        public async Task<RecipeDTO> UpdateRecipe(RecipeUpdate recipeDTO, int userId, int recipeId, bool updateAllFields = false) 
+        public async Task<RecipeDTO> UpdateRecipe(RecipeDTO recipeDTO, bool updateAllFields = false) 
         {
-            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeId && e.UserId == userId;
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == recipeDTO.RecipeId;
             Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
 
             await UpdateEntity(recipe, recipeDTO, updateAllFields);
@@ -69,12 +52,17 @@ namespace RecipeHubAPI.Repository.Implementations
             return recipeUpdate;
         } 
 
-        public async Task DeleteRecipe(int id, int userId)
+        public async Task DeleteRecipe(int id)
         {
-            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id && e.UserId == userId;
+            Expression<Func<Recipe, bool>> filter = e => e.RecipeId == id;
             Recipe recipe = await GetEntity(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database");
             await DeleteEntities(recipe);
         }
 
+        public async Task AddRecipe(RecipeDTO recipeDTO)
+        {
+            Recipe recipe = _mapper.Map<Recipe>(recipeDTO);
+            await CreateEntity(recipe);
+        }
     }
 }

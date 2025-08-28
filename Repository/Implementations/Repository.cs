@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using RecipeHubAPI.Database;
+using RecipeHubAPI.Repository.Interface;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace RecipeHubAPI.Repository.Implementations
 {
-    public abstract class Repository<T> where T : class
+    public abstract class Repository<T> : IRepository<T> where T : class
     {
         private readonly ApplicationDbContext _db;
         internal DbSet<T> dbSet;
@@ -92,7 +93,7 @@ namespace RecipeHubAPI.Repository.Implementations
             }
             return false;
         }
-        protected async Task<T> UpdateEntity<K>(T entity, K entityDTO, bool updateAllFields = false) where K : class, new()
+        protected async Task<T> UpdateEntity<K>(T entity, K entityDTO, bool updateAllFields = false) where K : class
         {
             if (entity is null || entityDTO is null) throw new Exception("Entities cannot be null.");
 
@@ -103,25 +104,60 @@ namespace RecipeHubAPI.Repository.Implementations
             else
             {
                 Type entityDTOType = typeof(K);
-                Type entityType = typeof(T);
-
                 PropertyInfo[] dtoProperties = entityDTOType.GetProperties();
 
+                // Use EF's SetValues to set all properties
+                dbSet.Entry(entity).CurrentValues.SetValues(entityDTO);
+
+                // Then mark only non-null properties as modified
                 foreach (PropertyInfo dtoProperty in dtoProperties)
                 {
-                    // retrieves the value of the property from the DTO instance.
                     object? dtoValue = dtoProperty.GetValue(entityDTO);
-
                     if (dtoValue is not null)
                     {
-                        PropertyInfo? entityProperty = entityType.GetProperty(dtoProperty.Name);
-
-                        entityProperty?.SetValue(entity, dtoValue);
+                        dbSet.Entry(entity).Property(dtoProperty.Name).IsModified = true;
+                    }
+                    else
+                    {
+                        dbSet.Entry(entity).Property(dtoProperty.Name).IsModified = false;
                     }
                 }
             }
             await _db.SaveChangesAsync();
             return entity;
+        }
+
+        // Execute operations within a database transaction
+        public async Task<TResult> ExecuteInTransaction<TResult>(Func<Task<TResult>> operation)
+        {
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                var result = await operation();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        // For operations that don't return a value
+        public async Task ExecuteInTransaction(Func<Task> operation)
+        {
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                await operation();
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }
