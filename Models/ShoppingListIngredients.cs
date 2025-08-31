@@ -19,6 +19,6 @@ namespace RecipeHubAPI.Models
         [ForeignKey("MeasurementUnitId")]
         public required MeasurementUnit MeasurementUnit { get; set; }
         [Required]
-        public int QuantityNumber { get; set; }
+        public int IngredientAmount { get; set; }
     }
 }

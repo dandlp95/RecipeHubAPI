@@ -29,7 +29,7 @@ namespace RecipeHubAPI.Repository.Implementations
 
         public async Task<List<CategoryDTO>> GetCategories(int userId)
         {
-            Expression<Func<Category, bool>> expression = c => c.UserId == userId;
+            Expression<Func<Category, bool>> expression = c => c.Recipe.User.UserId == userId;
             List<Category> categories = await GetAll(expression);
             List<CategoryDTO> categoriesDTO = _mapper.Map<List<CategoryDTO>>(categories);
             return categoriesDTO;
@@ -37,7 +37,7 @@ namespace RecipeHubAPI.Repository.Implementations
 
         public async Task DeleteCategoryById(int categoryId, int userId)
         {
-            Expression<Func<Category, bool>> expression = c => c.CategoryId == categoryId && c.UserId == userId;
+            Expression<Func<Category, bool>> expression = c => c.CategoryId == categoryId && c.Recipe.User.UserId == userId;
             Category category = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified CategoryId not found.");
             await DeleteEntities(category);
         }
@@ -45,14 +45,14 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task DeleteCategoryByRecipeId(int recipeId, int userId)
         {
             Expression<Func<Category, bool>> expression =
-                c => c.RecipeCategories.Any(rc => rc.Recipe.RecipeId == recipeId && rc.Recipe.UserId == userId);
+                c => c.Recipe.RecipeId == recipeId && c.Recipe.User.UserId == userId;
             List<Category> categories = await GetAll(expression);
             await DeleteEntities(categories);
         }
 
         public async Task<CategoryDTO> GetCategoryById(int categoryId, int userId)
         {
-            Expression<Func<Category, bool>> expression = c => c.CategoryId == categoryId && c.UserId == userId;
+            Expression<Func<Category, bool>> expression = c => c.CategoryId == categoryId && c.Recipe.User.UserId == userId;
             Category category = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified CategoryId not found.");
             CategoryDTO categoryDTO = _mapper.Map<CategoryDTO>(category);
             return categoryDTO;
@@ -64,7 +64,7 @@ namespace RecipeHubAPI.Repository.Implementations
             List<Category> categories = new();
 
             Expression<Func<Category, bool>> expression =
-                c => c.RecipeCategories.Any(rc => rc.Recipe.RecipeId == recipeId && rc.Recipe.UserId == userId);
+                c => c.Recipe.RecipeId == recipeId && c.Recipe.User.UserId == userId;
 
             categories = await GetAll(expression);
             List<CategoryDTO> categoriesDTO = _mapper.Map<List<CategoryDTO>>(categories);
@@ -74,7 +74,7 @@ namespace RecipeHubAPI.Repository.Implementations
         public async Task<CategoryDTO> UpdateCategory(CategoryDTO categoryDTO)
         {
             Expression<Func<Category, bool>> expression = entities => entities.CategoryId == categoryDTO.CategoryId;
-            Category category = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified GorupId not found.");
+            Category category = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "Entity with specified CategoryId not found.");
             await UpdateEntity(category, categoryDTO);
             CategoryDTO groupDTO = _mapper.Map<CategoryDTO>(category);
             return groupDTO;

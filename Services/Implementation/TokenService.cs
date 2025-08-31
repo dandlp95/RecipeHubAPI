@@ -27,7 +27,7 @@ namespace RecipeHubAPI.Services.Implementation
             {
                 new("username", username),
                 new("userId", userId.ToString()),
-                // Adds the correct authorization type based on user role.
+                // Adds the correct authorization type based on User role.
                 new(ClaimTypes.Role, isAdmin ? "Admin" : "User")
             };
 
@@ -44,7 +44,7 @@ namespace RecipeHubAPI.Services.Implementation
         {
             if (Int32.TryParse(userIdClaim?.Value, out int userIdClaimValue))
             {
-                // Add logic later to verify their user role.
+                // Add logic later to verify their User role.
                 if (userIdClaimValue != userId) return -1;
                 User user = await _userRepository.GetUser(userId);
                 return user is not null ? 1 : 0;

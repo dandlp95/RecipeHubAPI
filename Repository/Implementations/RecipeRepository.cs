@@ -59,10 +59,12 @@ namespace RecipeHubAPI.Repository.Implementations
             await DeleteEntities(recipe);
         }
 
-        public async Task AddRecipe(RecipeDTO recipeDTO)
+        public async Task<RecipeDTO> AddRecipe(RecipeDTO recipeDTO)
         {
             Recipe recipe = _mapper.Map<Recipe>(recipeDTO);
             await CreateEntity(recipe);
+            recipeDTO = _mapper.Map<RecipeDTO>(recipe);
+            return recipeDTO;
         }
     }
 }

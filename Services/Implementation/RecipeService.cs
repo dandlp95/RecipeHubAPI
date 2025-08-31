@@ -20,7 +20,7 @@ namespace RecipeHubAPI.Services.Implementation
             _mapper = mapper;
         }
 
-        public async Task CreateRecipe(CompleteRecipeDTO completeRecipeDTO)
+        public async Task<int> CreateRecipe(CompleteRecipeDTO completeRecipeDTO)
         {
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(completeRecipeDTO);
             List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.Ingredients;
@@ -28,10 +28,17 @@ namespace RecipeHubAPI.Services.Implementation
             
             await _recipeRepository.ExecuteInTransaction(async () =>
             {
-                await _recipeRepository.AddRecipe(recipeDTO);
+                recipeDTO = await _recipeRepository.AddRecipe(recipeDTO);
+                
+                // Update all DTOs with the new RecipeId.
+                recipeIngredientDTOs.ForEach(i => i.RecipeId = recipeDTO.RecipeId);
+                stepDTOs.ForEach(s => s.RecipeId = recipeDTO.RecipeId);
+
                 await _recipeIngredientsRepository.AddRecipeIngredients(recipeIngredientDTOs);
                 await _stepsRepository.AddSteps(stepDTOs);
             });
+
+            return recipeDTO.RecipeId;
         }
 
         public async Task UpdateRecipe(CompleteRecipeDTO completeRecipeDTO, int userId)
@@ -71,7 +78,7 @@ namespace RecipeHubAPI.Services.Implementation
             });
         }
 
-        public async Task<CompleteRecipeDTO> GetRecipeByRecipeId(int recipeId, int userId)
+        public async Task<CompleteRecipeDTO> GetRecipeById(int recipeId, int userId)
         {
             CompleteRecipeDTO completeRecipeDTO = await _recipeRepository.ExecuteInTransaction(async () =>
             {

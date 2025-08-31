@@ -37,7 +37,6 @@ namespace RecipeHubAPI.Database
         //public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<MeasurementUnit> MeasurementUnits { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<RecipeCategory> RecipeCategories { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
         public DbSet<ShoppingList> ShoppingList { get; set; }
         public DbSet<ShoppingListIngredients> ShoppingListIngredients { get; set; }
@@ -46,13 +45,13 @@ namespace RecipeHubAPI.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Category>();
-            modelBuilder.Entity<GroupRecipe>();
-            modelBuilder.Entity<Recipe>();
-            modelBuilder.Entity<RecipeIngredient>();
-            modelBuilder.Entity<ShoppingList>();
-            modelBuilder.Entity<ShoppingListIngredients>();
-            modelBuilder.Entity<Step>();
+
+            // WithMany() specifies the "many" side of the one-to-many relationship.
+            // It means:
+            // One Recipe can be associated with many Category entities
+            // The empty parentheses indicate that the Recipe model doesn't have a navigation property collection pointing back to its categories
+            // If Recipe had a public ICollection<Category> Categories { get; set; } property, you would write WithMany(r => r.Categories) instead.
+            
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.EmailAddress)
                 .IsUnique();
@@ -61,22 +60,19 @@ namespace RecipeHubAPI.Database
                 .HasIndex(u => u.UserName)
                 .IsUnique();
 
-            modelBuilder.Entity<RecipeCategory>()
-                .HasIndex(rc => new {rc.RecipeId, rc.CategoryId})
-                .IsUnique();
+            // Category - Recipe relationship
+            modelBuilder.Entity<Category>();
 
+            // Group - User relationship
             modelBuilder.Entity<Group>()
                 .HasOne(g => g.User)
                 .WithMany()
-                .HasForeignKey(g => g.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevents auto-deletion of Groups when a User is deleted
+                .HasForeignKey(g => g.UserId);
 
-            modelBuilder.Entity<Recipe>()
-                .HasOne(r => r.User)
-                .WithMany()
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevents auto-deletion of Groups when a User is deleted
+            // Recipe - User relationship
+            modelBuilder.Entity<Recipe>();
 
+            // GroupRecipe - Group relationship
             modelBuilder.Entity<GroupRecipe>()
                 .HasIndex(gr => new { gr.GroupId, gr.RecipeId })  // Create unique index
                 .IsUnique(); // Ensures no duplicate GroupId + RecipeId
@@ -85,13 +81,25 @@ namespace RecipeHubAPI.Database
                 .HasOne(gr => gr.Group)
                 .WithMany(g => g.GroupRecipes)
                 .HasForeignKey(gr => gr.GroupId)
-                .OnDelete(DeleteBehavior.Cascade); // Deleting a Group deletes its GroupRecipes
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade cycles
 
+            // GroupRecipe - Recipe relationship
             modelBuilder.Entity<GroupRecipe>()
                 .HasOne(gr => gr.Recipe)
                 .WithMany(r => r.GroupRecipes)
                 .HasForeignKey(gr => gr.RecipeId)
-                .OnDelete(DeleteBehavior.Cascade); // Deleting a Recipe deletes its GroupRecipes
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade cycles
+
+            // RecipeIngredient - Recipe relationship
+            modelBuilder.Entity<RecipeIngredient>();
+
+            // Step - Recipe relationship
+            modelBuilder.Entity<Step>();
+
+            modelBuilder.Entity<ShoppingList>();
+
+            // ShoppingListIngredients - ShoppingList relationship
+            modelBuilder.Entity<ShoppingListIngredients>();
 
             modelBuilder.Entity<MeasurementUnit>().HasData(
                 new MeasurementUnit { MeasurementUnitId = 1, Name = "Milligram", Abbreviation = "mg" },

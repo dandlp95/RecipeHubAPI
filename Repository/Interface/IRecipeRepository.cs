@@ -10,6 +10,6 @@ namespace RecipeHubAPI.Repository.Interface
         Task<RecipeDTO> GetRecipe(int id, int userId);
         Task<RecipeDTO> UpdateRecipe(RecipeDTO recipeDTO, int userId, int recipeId, bool updateAllFields = false);
         Task DeleteRecipe(int id, int userId);
-        Task AddRecipe(RecipeDTO recipeDTO);
+        Task<RecipeDTO> AddRecipe(RecipeDTO recipeDTO);
     }
 }

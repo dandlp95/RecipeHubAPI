@@ -6,7 +6,7 @@ namespace RecipeHubAPI.Controllers
     public abstract class BaseController : ControllerBase
     {
         /// <summary>
-        /// Extracts the user ID from the JWT token claims and validates it
+        /// Extracts the User ID from the JWT token claims and validates it
         /// </summary>
         /// <returns>Tuple containing (isValid, userId, response). If isValid is false, response contains the error response</returns>
         /// <example>

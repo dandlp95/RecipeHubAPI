@@ -77,7 +77,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("User", policy => policy.RequireClaim(ClaimTypes.Role, "User"));
     options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
-    // Policy not used for now. Used for checking if the user is the same as the one in the route.
+    // Policy not used for now. Used for checking if the User is the same as the one in the route.
     //options.AddPolicy("SameUserOrAdmin", policy => policy.RequireAuthenticatedUser().AddRequirements(new SameUserRequirement()));
 });
 

@@ -19,14 +19,15 @@ namespace RecipeHubAPI.Controllers
         private readonly IRecipeRepository _dbRecipe;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IRecipeService _recipeService;
-
-        public RecipeController(IMapper mapper, IExceptionHandler exceptionHandler, IRecipeRepository dbRecipe, ICategoryRepository categoryRepository, IRecipeService recipeService)
+        private readonly IMeasurementUnitRepository _measurementUnitRepository;
+        public RecipeController(IMapper mapper, IExceptionHandler exceptionHandler, IRecipeRepository dbRecipe, ICategoryRepository categoryRepository, IRecipeService recipeService, IMeasurementUnitRepository measurementUnitRepository)
         {
             _mapper = mapper;
             _exceptionHandler = exceptionHandler;
             _dbRecipe = dbRecipe;
             _categoryRepository = categoryRepository;
             _recipeService = recipeService;
+            _measurementUnitRepository = measurementUnitRepository;
         }
         [HttpGet("recipes/{recipeId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -44,7 +45,7 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                CompleteRecipeDTO recipe = await _recipeService.GetRecipeByRecipeId(recipeId, userId);
+                CompleteRecipeDTO recipe = await _recipeService.GetRecipeById(recipeId, userId);
                 
                 response.Result = recipe;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
@@ -68,7 +69,7 @@ namespace RecipeHubAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Policy = "User")]
-        public async Task<ActionResult<APIResponse>> GetRecipes([FromQuery] int? groupId = null)
+        public async Task<ActionResult<APIResponse>> GetRecipesByGroup([FromQuery] int? groupId = null)
         {
             APIResponse response = new();
             try
@@ -114,11 +115,9 @@ namespace RecipeHubAPI.Controllers
 
                 recipeCreateDTO.UserId = userId;
 
-                await _recipeService.CreateRecipe(recipeCreateDTO);
-                response.StatusCode = System.Net.HttpStatusCode.Created;
-                response.Errors = null;
-                response.IsSuccess = true;
-                return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId = recipeCreateDTO.RecipeId }, response);
+                int recipeId = await _recipeService.CreateRecipe(recipeCreateDTO);
+
+                return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId });
             }
             catch (RecipeHubException ex)
             {
@@ -130,6 +129,74 @@ namespace RecipeHubAPI.Controllers
             }
         }
 
+        [HttpPut("recipes/{recipeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Policy = "User")]
+        public async Task<ActionResult<APIResponse>> UpdateRecipe(int recipeId, [FromBody] CompleteRecipeDTO recipeUpdateDTO)
+        {
+            APIResponse response = new();
+            try
+            {
+                var (isValid, userId, errorResponse) = GetUserIdFromClaims();
+                if (!isValid)
+                {
+                    return errorResponse;
+                }
+
+                recipeUpdateDTO.UserId = userId;
+                recipeUpdateDTO.RecipeId = recipeId;
+
+                await _recipeService.UpdateRecipe(recipeUpdateDTO, userId);
+
+                response.Result = recipeUpdateDTO;
+                response.StatusCode = System.Net.HttpStatusCode.OK;
+                response.Errors = null;
+                response.IsSuccess = true;
+                return Ok(response);
+
+            }catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+        }
+        
+        [HttpDelete("recipes/{recipeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Policy = "User")]
+        public async Task<ActionResult<APIResponse>> DeleteRecipe(int recipeId){
+            APIResponse response = new();
+            try
+            {
+                var (isValid, userId, errorResponse) = GetUserIdFromClaims();
+                if (!isValid)
+                {
+                    return errorResponse;
+                }
+
+                await _recipeService.DeleteRecipe(recipeId, userId);
+
+                return NoContent();
+
+            }catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+        }
+        
+
+        
         [HttpGet("recipes/{recipeId}/categories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -165,11 +232,67 @@ namespace RecipeHubAPI.Controllers
             }
         }
 
-        //[HttpPost("users/{userId}/recipes/{recipeId}/step")]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult<APIResponse>> CreateStep
+        [HttpDelete("recipes/{recipeId}/categories")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Policy = "User")]
+        public async Task<ActionResult<APIResponse>> DeleteRecipeCategories(int recipeId)
+        {
+            APIResponse response = new();
+            try
+            {
+                var (isValid, userId, errorResponse) = GetUserIdFromClaims();
+                if (!isValid)
+                {
+                    return errorResponse;
+                }
+
+                await _categoryRepository.DeleteCategoryByRecipeId(recipeId, userId);
+
+                return NoContent();
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+        }
+
+
+        [HttpGet("measurement-units")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Policy = "User")]
+        public async Task<ActionResult<APIResponse>> GetMeasurementUnits()
+        {
+            APIResponse response = new();
+            try
+            {
+                var (isValid, userId, errorResponse) = GetUserIdFromClaims();
+                if (!isValid)
+                {
+                    return errorResponse;
+                }
+                response.Result = await _measurementUnitRepository.GetMeasurementUnits();
+                response.StatusCode = System.Net.HttpStatusCode.OK;
+                response.Errors = null;
+                response.IsSuccess = true;
+                return Ok(response);
+            }
+            catch (RecipeHubException ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+            catch (Exception ex)
+            {
+                return _exceptionHandler.returnExceptionResponse(ex, response);
+            }
+        }
 
     };
 }
