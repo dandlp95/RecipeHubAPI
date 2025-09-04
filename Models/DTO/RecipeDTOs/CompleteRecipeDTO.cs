@@ -10,5 +10,6 @@
         public int GroupId { get; set; }
         public List<StepDTO> Steps { get; set; }
         public List<RecipeIngredientDTO> Ingredients { get; set; }
+        public List<CategoryDTO> Categories { get; set; }
     }
 }

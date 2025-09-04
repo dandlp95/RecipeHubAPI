@@ -45,6 +45,8 @@ builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IRecipeIngredientsRepository, RecipeIngredientsRepository>();
 builder.Services.AddScoped<IStepsRepository, StepsRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IMeasurementUnitRepository, MeasurementUnitRepository>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 
 // Optional but removes legacy claim mapping surprises

@@ -9,6 +9,7 @@ namespace RecipeHubAPI.Repository.Interface
         Task<List<CategoryDTO>> GetCategories(int userId);
         Task<List<CategoryDTO>> GetCategoryByRecipeId(int recipeId, int userId);
         Task<CategoryDTO> CreateCategory(CategoryDTO category);
+        Task CreateCategories(List<CategoryDTO> categories);
         Task DeleteCategoryById(int categoryId, int userId);
         Task DeleteCategoryByRecipeId(int recipeId, int userId);
         Task<CategoryDTO> UpdateCategory(CategoryDTO category);

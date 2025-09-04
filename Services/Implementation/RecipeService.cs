@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RecipeHubAPI.Models;
+using RecipeHubAPI.Models.DTO;
 using RecipeHubAPI.Models.DTO.RecipeDTOs;
 using RecipeHubAPI.Repository.Interface;
 using RecipeHubAPI.Services.Interfaces;
@@ -11,12 +12,14 @@ namespace RecipeHubAPI.Services.Implementation
         private readonly IRecipeRepository _recipeRepository;
         private readonly IRecipeIngredientsRepository _recipeIngredientsRepository;
         private readonly IStepsRepository _stepsRepository;
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
-        public RecipeService(IRecipeRepository recipeRepository, IRecipeIngredientsRepository recipeIngredientsRepository, IStepsRepository stepsRepository, IMapper mapper)
+        public RecipeService(IRecipeRepository recipeRepository, IRecipeIngredientsRepository recipeIngredientsRepository, IStepsRepository stepsRepository, ICategoryRepository categoryRepository, IMapper mapper)
         {
             _recipeRepository = recipeRepository;
             _recipeIngredientsRepository = recipeIngredientsRepository;
             _stepsRepository = stepsRepository;
+            _categoryRepository = categoryRepository;
             _mapper = mapper;
         }
 
@@ -25,6 +28,7 @@ namespace RecipeHubAPI.Services.Implementation
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(completeRecipeDTO);
             List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.Ingredients;
             List<StepDTO> stepDTOs = completeRecipeDTO.Steps;
+            List<CategoryDTO> categoryDTOs = completeRecipeDTO.Categories;
             
             await _recipeRepository.ExecuteInTransaction(async () =>
             {
@@ -33,9 +37,16 @@ namespace RecipeHubAPI.Services.Implementation
                 // Update all DTOs with the new RecipeId.
                 recipeIngredientDTOs.ForEach(i => i.RecipeId = recipeDTO.RecipeId);
                 stepDTOs.ForEach(s => s.RecipeId = recipeDTO.RecipeId);
+                categoryDTOs.ForEach(c => c.RecipeId = recipeDTO.RecipeId);
 
                 await _recipeIngredientsRepository.AddRecipeIngredients(recipeIngredientDTOs);
                 await _stepsRepository.AddSteps(stepDTOs);
+                
+                // Add categories
+                if (categoryDTOs.Any())
+                {
+                    await _categoryRepository.CreateCategories(categoryDTOs);
+                }
             });
 
             return recipeDTO.RecipeId;
@@ -46,15 +57,17 @@ namespace RecipeHubAPI.Services.Implementation
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(completeRecipeDTO);
             List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.Ingredients;
             List<StepDTO> stepDTOs = completeRecipeDTO.Steps;
+            List<CategoryDTO> categoryDTOs = completeRecipeDTO.Categories;
             
             await _recipeRepository.ExecuteInTransaction(async () =>
             {
                 // Update recipe
                 await _recipeRepository.UpdateRecipe(recipeDTO, userId, recipeDTO.RecipeId);
 
-                // Delete old ingredients and steps
+                // Delete old ingredients, steps, and categories
                 await _recipeIngredientsRepository.DeleteIngredientsByRecipeId(recipeDTO.RecipeId);
                 await _stepsRepository.DeleteStepsByRecipeId(recipeDTO.RecipeId);
+                await _categoryRepository.DeleteCategoryByRecipeId(recipeDTO.RecipeId, userId);
 
                 // Add new ones (much faster than individual updates)
                 if (recipeIngredientDTOs.Any())
@@ -64,6 +77,10 @@ namespace RecipeHubAPI.Services.Implementation
                 if (stepDTOs.Any())
                 {
                     await _stepsRepository.AddSteps(stepDTOs);
+                }
+                if (categoryDTOs.Any())
+                {
+                    await _categoryRepository.CreateCategories(categoryDTOs);
                 }
             });
         }
@@ -75,6 +92,7 @@ namespace RecipeHubAPI.Services.Implementation
                 await _recipeRepository.DeleteRecipe(recipeId, userId);
                 await _recipeIngredientsRepository.DeleteIngredientsByRecipeId(recipeId);
                 await _stepsRepository.DeleteStepsByRecipeId(recipeId);
+                await _categoryRepository.DeleteCategoryByRecipeId(recipeId, userId);
             });
         }
 
@@ -85,9 +103,11 @@ namespace RecipeHubAPI.Services.Implementation
                 RecipeDTO recipeDTO = await _recipeRepository.GetRecipe(recipeId, userId);
                 List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(recipeId);
                 List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(recipeId);
+                List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(recipeId, userId);
                 CompleteRecipeDTO completeRecipeDTO = _mapper.Map<CompleteRecipeDTO>(recipeDTO);
                 completeRecipeDTO.Ingredients = recipeIngredientDTOs;
                 completeRecipeDTO.Steps = stepDTOs;
+                completeRecipeDTO.Categories = categoryDTOs;
                 return completeRecipeDTO;
             });
             return completeRecipeDTO;
@@ -103,8 +123,10 @@ namespace RecipeHubAPI.Services.Implementation
                 {
                     List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(completeRecipeDTO.RecipeId);
                     List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(completeRecipeDTO.RecipeId);
+                    List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(completeRecipeDTO.RecipeId, userId);
                     completeRecipeDTO.Ingredients = recipeIngredientDTOs;
                     completeRecipeDTO.Steps = stepDTOs;
+                    completeRecipeDTO.Categories = categoryDTOs;
                 }
 
                 return completeRecipeDTOs;

@@ -27,6 +27,12 @@ namespace RecipeHubAPI.Repository.Implementations
             return category;
         }
 
+        public async Task CreateCategories(List<CategoryDTO> categories)
+        {
+            List<Category> categoryEntities = _mapper.Map<List<Category>>(categories);
+            await CreateEntities(categoryEntities);
+        }
+
         public async Task<List<CategoryDTO>> GetCategories(int userId)
         {
             Expression<Func<Category, bool>> expression = c => c.Recipe.User.UserId == userId;
