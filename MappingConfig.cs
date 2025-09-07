@@ -21,6 +21,7 @@ namespace RecipeHubAPI
             CreateMap<RecipeIngredient, RecipeIngredientDTO>().ReverseMap();
             CreateMap<Step, StepDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<GroupRecipe, GroupRecipeDTO>().ReverseMap();
         }
     }
 }

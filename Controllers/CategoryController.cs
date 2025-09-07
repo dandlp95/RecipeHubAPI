@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Models;
@@ -15,11 +16,13 @@ namespace RecipeHubAPI.Controllers
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IExceptionHandler _exceptionHandler;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ICategoryRepository categoryRepository, IExceptionHandler exceptionHandler)
+        public CategoryController(ICategoryRepository categoryRepository, IExceptionHandler exceptionHandler, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _exceptionHandler = exceptionHandler;
+            _mapper = mapper;
         }
 
         [HttpGet("categories/{categoryId}")]
@@ -38,8 +41,9 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
                 
-                CategoryDTO categories = await _categoryRepository.GetCategoryById(categoryId, userId);
-                response.Result = categories;
+                Category category = await _categoryRepository.GetCategoryById(categoryId, userId);
+                CategoryDTO categoryDTO = _mapper.Map<CategoryDTO>(category);
+                response.Result = categoryDTO;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;
@@ -72,8 +76,9 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
                 
-                List<CategoryDTO> categories = await _categoryRepository.GetCategories(userId);
-                response.Result = categories;
+                List<Category> categories = await _categoryRepository.GetCategories(userId);
+                List<CategoryDTO> categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
+                response.Result = categoryDTOs;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;
@@ -138,8 +143,10 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
                 categoryDTO.UserId = userId;
-                categoryDTO = await _categoryRepository.CreateCategory(categoryDTO);
-                int? categoryId = categoryDTO.CategoryId;
+                Category category = _mapper.Map<Category>(categoryDTO);
+                category = await _categoryRepository.CreateCategory(category);
+                CategoryDTO createdCategoryDTO = _mapper.Map<CategoryDTO>(category);
+                int? categoryId = createdCategoryDTO.CategoryId;
 
                 return CreatedAtAction(nameof(GetCategory), new { categoryId });
             }
@@ -169,8 +176,10 @@ namespace RecipeHubAPI.Controllers
                 }
                 categoryDTO.UserId = userId;
                 categoryDTO.CategoryId = categoryId;
-                categoryDTO = await _categoryRepository.UpdateCategory(categoryDTO);
-                response.Result = categoryDTO;
+                Category category = _mapper.Map<Category>(categoryDTO);
+                category = await _categoryRepository.UpdateCategory(category);
+                CategoryDTO updatedCategoryDTO = _mapper.Map<CategoryDTO>(category);
+                response.Result = updatedCategoryDTO;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;

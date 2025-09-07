@@ -226,8 +226,10 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                List<CategoryDTO> categories = [];
-                categories = await _categoryRepository.GetCategoryByRecipeId(recipeId, userId);
+                List<CategoryDTO> categoriesDTO = [];
+                List<Category> categories = await _categoryRepository.GetCategoryByRecipeId(recipeId, userId);
+                categoriesDTO = _mapper.Map<List<CategoryDTO>>(categoriesDTO);
+                
                 response.Result = categories;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;

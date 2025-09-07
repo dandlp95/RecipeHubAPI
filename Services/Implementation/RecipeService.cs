@@ -33,7 +33,13 @@ namespace RecipeHubAPI.Services.Implementation
             await _recipeRepository.ExecuteInTransaction(async () =>
             {
                 recipeDTO = await _recipeRepository.AddRecipe(recipeDTO);
+                // GroupRecipeDTO groupRecipeDTO = new GroupRecipeDTO(){
+                //     GroupId = completeRecipeDTO.GroupId,
+                //     RecipeId = recipeDTO.RecipeId
+                // };
                 
+                // await _groupRecipeRepository.AddGroupRecipe(groupRecipeDTO);
+
                 // Update all DTOs with the new RecipeId.
                 recipeIngredientDTOs.ForEach(i => i.RecipeId = recipeDTO.RecipeId);
                 stepDTOs.ForEach(s => s.RecipeId = recipeDTO.RecipeId);
@@ -45,7 +51,8 @@ namespace RecipeHubAPI.Services.Implementation
                 // Add categories
                 if (categoryDTOs.Any())
                 {
-                    await _categoryRepository.CreateCategories(categoryDTOs);
+                    List<Category> categories = _mapper.Map<List<Category>>(categoryDTOs);
+                    await _categoryRepository.CreateCategories(categories);
                 }
             });
 
@@ -80,7 +87,8 @@ namespace RecipeHubAPI.Services.Implementation
                 }
                 if (categoryDTOs.Any())
                 {
-                    await _categoryRepository.CreateCategories(categoryDTOs);
+                    List<Category> categories = _mapper.Map<List<Category>>(categoryDTOs);
+                    await _categoryRepository.CreateCategories(categories);
                 }
             });
         }
@@ -103,7 +111,8 @@ namespace RecipeHubAPI.Services.Implementation
                 RecipeDTO recipeDTO = await _recipeRepository.GetRecipe(recipeId, userId);
                 List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(recipeId);
                 List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(recipeId);
-                List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(recipeId, userId);
+                List<Category> categories = await _categoryRepository.GetCategoryByRecipeId(recipeId, userId);
+                List<CategoryDTO> categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
                 CompleteRecipeDTO completeRecipeDTO = _mapper.Map<CompleteRecipeDTO>(recipeDTO);
                 completeRecipeDTO.RecipeIngredients = recipeIngredientDTOs;
                 completeRecipeDTO.Steps = stepDTOs;
@@ -128,7 +137,8 @@ namespace RecipeHubAPI.Services.Implementation
                 {
                     List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(completeRecipeDTO?.RecipeId ?? 0);
                     List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(completeRecipeDTO?.RecipeId ?? 0);
-                    List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(completeRecipeDTO?.RecipeId ?? 0, userId);
+                    List<Category> categories = await _categoryRepository.GetCategoryByRecipeId(completeRecipeDTO?.RecipeId ?? 0, userId);
+                    List<CategoryDTO> categoryDTOs = _mapper.Map<List<CategoryDTO>>(categories);
                     completeRecipeDTO.RecipeIngredients = recipeIngredientDTOs;
                     completeRecipeDTO.Steps = stepDTOs;
                     completeRecipeDTO.Categories = categoryDTOs;

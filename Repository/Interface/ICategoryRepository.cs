@@ -1,17 +1,16 @@
 ﻿using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO;
 
 namespace RecipeHubAPI.Repository.Interface
 {
     public interface ICategoryRepository
     {
-        Task<CategoryDTO> GetCategoryById(int categoryId, int userId);
-        Task<List<CategoryDTO>> GetCategories(int userId);
-        Task<List<CategoryDTO>> GetCategoryByRecipeId(int recipeId, int userId);
-        Task<CategoryDTO> CreateCategory(CategoryDTO category);
-        Task CreateCategories(List<CategoryDTO> categories);
+        Task<Category> GetCategoryById(int categoryId, int userId);
+        Task<List<Category>> GetCategories(int userId);
+        Task<List<Category>> GetCategoryByRecipeId(int recipeId, int userId);
+        Task<Category> CreateCategory(Category category);
+        Task CreateCategories(List<Category> categories);
         Task DeleteCategoryById(int categoryId, int userId);
         Task DeleteCategoryByRecipeId(int recipeId, int userId);
-        Task<CategoryDTO> UpdateCategory(CategoryDTO category);
+        Task<Category> UpdateCategory(Category category);
     }
 }
