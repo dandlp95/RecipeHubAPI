@@ -14,11 +14,10 @@ namespace RecipeHubAPI.Models
         public int RecipeId { get; set; }
         [ForeignKey("RecipeId")]
         public required Recipe Recipe { get; set; }
-        [Required]
-        public int MeasurementUnitId { get; set; }
+        public int? MeasurementUnitId { get; set; }
         [ForeignKey("MeasurementUnitId")]
-        public required MeasurementUnit MeasurementUnit { get; set; }
-        public int QuantityNumber { get; set; }
+        public required MeasurementUnit? MeasurementUnit { get; set; }
+        public double? QuantityNumber { get; set; }
         public required int SortOrder { get; set; }
     }
 }

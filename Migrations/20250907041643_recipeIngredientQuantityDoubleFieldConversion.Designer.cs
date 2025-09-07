@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecipeHubAPI.Database;
 
@@ -11,9 +12,11 @@ using RecipeHubAPI.Database;
 namespace RecipeHubAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250907041643_recipeIngredientQuantityDoubleFieldConversion")]
+    partial class recipeIngredientQuantityDoubleFieldConversion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -499,7 +502,7 @@ namespace RecipeHubAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MeasurementUnitId")
+                    b.Property<int>("MeasurementUnitId")
                         .HasColumnType("int");
 
                     b.Property<double?>("QuantityNumber")
@@ -690,7 +693,9 @@ namespace RecipeHubAPI.Migrations
                 {
                     b.HasOne("RecipeHubAPI.Models.MeasurementUnit", "MeasurementUnit")
                         .WithMany()
-                        .HasForeignKey("MeasurementUnitId");
+                        .HasForeignKey("MeasurementUnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("RecipeHubAPI.Models.Recipe", "Recipe")
                         .WithMany()

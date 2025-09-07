@@ -91,7 +91,12 @@ namespace RecipeHubAPI.Database
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade cycles
 
             // RecipeIngredient - Recipe relationship
-            modelBuilder.Entity<RecipeIngredient>();
+            modelBuilder.Entity<RecipeIngredient>()
+                .Property(ri => ri.MeasurementUnitId)
+                .HasConversion(
+                    v => v == 0 ? null : v,  // Convert 0 to null when saving to database
+                    v => v ?? 0              // Convert null to 0 when reading from database
+                );
 
             // Step - Recipe relationship
             modelBuilder.Entity<Step>();
