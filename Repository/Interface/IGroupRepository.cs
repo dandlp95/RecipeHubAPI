@@ -1,15 +1,14 @@
 ﻿using RecipeHubAPI.CustomTypes;
-using RecipeHubAPI.Models.DTO.GroupDTOs;
-using RecipeHubAPI.Models.DTO.RecipeDTOs;
+using RecipeHubAPI.Models;
 
 namespace RecipeHubAPI.Repository.Interface
 {
     public interface IGroupRepository
     {
-        Task<GroupDTO> CreateGroup(GroupUpdate groupDTO, int userId);
-        Task<List<GroupDTO>> GetGroups(int userId, PaginationParams? paginationParams = null);
-        Task<GroupDTO?> GetGroup(int id, int userId);
-        Task<GroupDTO> UpdateGroup(GroupUpdate recipeDTO, int groupId,int userId, bool updateAllFields = false);
+        Task<Group> CreateGroup(Group group);
+        Task<List<Group>> GetGroups(int userId, PaginationParams? paginationParams = null);
+        Task<Group?> GetGroup(int id, int userId);
+        Task<Group> UpdateGroup(Group group, bool updateAllFields = false);
         Task DeleteGroup(int groupId, int userId);
     }
 }

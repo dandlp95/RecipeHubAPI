@@ -15,11 +15,13 @@ namespace RecipeHubAPI.Controllers
     {
         private readonly IGroupRepository _dbGroup;
         private readonly IExceptionHandler _exceptionHandler;
+        private readonly IMapper _mapper;
 
         public GroupController(IMapper mapper, IGroupRepository db, IExceptionHandler exceptionHandler)
         {
             _dbGroup = db;
             _exceptionHandler = exceptionHandler;
+            _mapper = mapper;
         }
 
         [HttpGet("groups")]
@@ -37,10 +39,10 @@ namespace RecipeHubAPI.Controllers
                 {
                     return errorResponse;
                 }
-                List<GroupDTO> groups = [];
-                groups = await _dbGroup.GetGroups(userId);
+                List<Group> groups = await _dbGroup.GetGroups(userId);
+                List<GroupDTO> groupDTOs = _mapper.Map<List<GroupDTO>>(groups);
 
-                response.Result = groups;
+                response.Result = groupDTOs;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;
@@ -73,8 +75,9 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
                 
-                GroupDTO? group = await _dbGroup.GetGroup(groupId, userId);
-                response.Result = group;
+                Group? group = await _dbGroup.GetGroup(groupId, userId);
+                GroupDTO? groupDTO = group != null ? _mapper.Map<GroupDTO>(group) : null;
+                response.Result = groupDTO;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;
@@ -107,9 +110,12 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                GroupDTO createdGroup = await _dbGroup.CreateGroup(newGroup, userId);
+                Group group = _mapper.Map<Group>(newGroup);
+                group.UserId = userId;
+                group = await _dbGroup.CreateGroup(group);
+                GroupDTO createdGroupDTO = _mapper.Map<GroupDTO>(group);
 
-                response.Result = createdGroup;
+                response.Result = createdGroupDTO;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;
@@ -173,9 +179,12 @@ namespace RecipeHubAPI.Controllers
                     return errorResponse;
                 }
 
-                GroupDTO updatedGroup = await _dbGroup.UpdateGroup(groupDto, groupId, userId, false);
+                Group group = _mapper.Map<Group>(groupDto);
+                group.GroupId = groupId;
+                group = await _dbGroup.UpdateGroup(group, false);
+                GroupDTO updatedGroupDTO = _mapper.Map<GroupDTO>(group);
 
-                response.Result = updatedGroup;
+                response.Result = updatedGroupDTO;
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.Errors = null;
                 response.IsSuccess = true;
