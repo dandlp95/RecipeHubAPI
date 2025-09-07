@@ -1,51 +1,42 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
 using RecipeHubAPI.Database;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.RecipeDTOs;
 using RecipeHubAPI.Repository.Interface;
 
 namespace RecipeHubAPI.Repository.Implementations
 {
     public class StepsRepository : Repository<Step>, IStepsRepository
     {
-        private readonly IMapper _mapper;
-        public StepsRepository(ApplicationDbContext db, IMapper mapper) : base(db)
+        public StepsRepository(ApplicationDbContext db) : base(db)
         {
-            _mapper = mapper;
         }
 
-        public async Task AddStep(StepDTO stepDTO)
+        public async Task AddStep(Step step)
         {
-            Step step = _mapper.Map<Step>(stepDTO);
             await CreateEntity(step);
         }
 
-        public async Task AddSteps(List<StepDTO> stepDTOs)
+        public async Task AddSteps(List<Step> steps)
         {
-            List<Step> steps = _mapper.Map<List<Step>>(stepDTOs);
             await CreateEntities(steps);
         }
 
-        public async Task DeleteStep(StepDTO stepDTO)
+        public async Task DeleteStep(Step step)
         {
-            Step step = _mapper.Map<Step>(stepDTO);
             await DeleteEntities(step);
         }
 
-        public async Task<List<StepDTO>> GetStepsByRecipeId(int recipeId)
+        public async Task<List<Step>> GetStepsByRecipeId(int recipeId)
         {
             Expression<Func<Step, bool>> filter = e => e.RecipeId == recipeId;
             List<Step> steps = await GetAll(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
-            List<StepDTO> stepDTOs = _mapper.Map<List<StepDTO>>(steps);
-            return stepDTOs;
+            return steps;
         }
 
-        public async Task UpdateStep(StepDTO stepDTO)
+        public async Task UpdateStep(Step step)
         {
-            Step step = _mapper.Map<Step>(stepDTO);
-            await UpdateEntity(step, stepDTO, true);
+            await UpdateEntity(step, step, true);
         }
 
         public async Task DeleteStepsByRecipeId(int recipeId)

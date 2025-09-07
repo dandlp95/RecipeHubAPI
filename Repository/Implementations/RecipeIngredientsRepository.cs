@@ -1,47 +1,38 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
 using RecipeHubAPI.Database;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.RecipeDTOs;
 using RecipeHubAPI.Repository.Interface;
 
 namespace RecipeHubAPI.Repository.Implementations
 {
     public class RecipeIngredientsRepository : Repository<RecipeIngredient>, IRecipeIngredientsRepository
     {
-        private readonly IMapper _mapper;
-        public RecipeIngredientsRepository(ApplicationDbContext db, IMapper mapper) : base(db)
+        public RecipeIngredientsRepository(ApplicationDbContext db) : base(db)
         {
-            _mapper = mapper;
         }
-        public async Task AddRecipeIngredient(RecipeIngredientDTO recipeIngredientDTO)
+        public async Task AddRecipeIngredient(RecipeIngredient recipeIngredient)
         {
-            RecipeIngredient recipeIngredient = _mapper.Map<RecipeIngredient>(recipeIngredientDTO);
             await CreateEntity(recipeIngredient);
         }
-        public async Task AddRecipeIngredients(List<RecipeIngredientDTO> recipeIngredientDTOs)
+        public async Task AddRecipeIngredients(List<RecipeIngredient> recipeIngredients)
         {
-            List<RecipeIngredient> recipeIngredients = _mapper.Map<List<RecipeIngredient>>(recipeIngredientDTOs);
             await CreateEntities(recipeIngredients);
         }
-        public async Task UpdateRecipeIngredient(RecipeIngredientDTO recipeIngredientDTO)
+        public async Task UpdateRecipeIngredient(RecipeIngredient recipeIngredient)
         {
-            RecipeIngredient recipeIngredient = _mapper.Map<RecipeIngredient>(recipeIngredientDTO);
-            await UpdateEntity(recipeIngredient, recipeIngredientDTO, true);
+            await UpdateEntity(recipeIngredient, recipeIngredient, true);
         }
 
-        public async Task<List<RecipeIngredientDTO>> GetRecipeIngredientsByRecipeId(int recipeId)
+        public async Task<List<RecipeIngredient>> GetRecipeIngredientsByRecipeId(int recipeId)
         {
             Expression<Func<RecipeIngredient, bool>> filter = e => e.RecipeId == recipeId;
             List<RecipeIngredient> recipeIngredients = await GetAll(filter) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "RecipeId doesn't match any entity in the database.");
-            List<RecipeIngredientDTO> recipeIngredientDTOs = _mapper.Map<List<RecipeIngredientDTO>>(recipeIngredients);
-            return recipeIngredientDTOs;
+            return recipeIngredients;
         }
 
-        public async Task DeleteRecipeIngredient(RecipeIngredientDTO recipeIngredientDTO)
+        public async Task DeleteRecipeIngredient(RecipeIngredient recipeIngredient)
         {
-            RecipeIngredient recipeIngredient = _mapper.Map<RecipeIngredient>(recipeIngredientDTO);
             await DeleteEntities(recipeIngredient);
         }
 

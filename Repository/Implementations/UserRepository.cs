@@ -1,27 +1,23 @@
-﻿using AutoMapper;
-using RecipeHubAPI.Database;
+﻿using RecipeHubAPI.Database;
 using RecipeHubAPI.Models;
-using RecipeHubAPI.Models.DTO.UserDTOs;
 using RecipeHubAPI.Repository.Interface;
 using RecipeHubAPI.Exceptions;
 using RecipeHubAPI.Services;
 using System.Linq.Expressions;
-
+using RecipeHubAPI.Models.DTO.UserDTOs;
 
 namespace RecipeHubAPI.Repository.Implementations
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        private IMapper _mapper;
         private IPasswordService _passwordService;
 
-        public UserRepository(ApplicationDbContext db, IMapper mapper, IPasswordService passwordHelper) : base(db)
+        public UserRepository(ApplicationDbContext db, IPasswordService passwordHelper) : base(db)
         {
-            _mapper = mapper;
             _passwordService = passwordHelper;
         }
 
-        public async Task<UserDTO?> Authenticate(UserLogin credentials)
+        public async Task<User?> Authenticate(UserLogin credentials)
         {
             string? username = credentials.UserName;
             string? email = credentials.Email;
@@ -40,8 +36,7 @@ namespace RecipeHubAPI.Repository.Implementations
                 throw new RecipeHubException(System.Net.HttpStatusCode.Unauthorized, "Invalid credentials");
             }
 
-            UserDTO responseUser = _mapper.Map<UserDTO>(foundUser);
-            return responseUser;
+            return foundUser;
         }
         public async Task<List<User>> GetAllUsers()
         {
@@ -59,13 +54,13 @@ namespace RecipeHubAPI.Repository.Implementations
             user.PasswordSalt = salt;
             await CreateEntity(user);
         }
-        public async Task<User> UpdateUser(UserUpdate userDTO)
+        public async Task<User> UpdateUser(User user)
         {
-            Expression<Func<User, bool>> expression = entity => entity.UserId == userDTO.UserId;
-            User user = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "UserId does not match any entity in database.");
+            Expression<Func<User, bool>> expression = entity => entity.UserId == user.UserId;
+            User existingUser = await GetEntity(expression) ?? throw new RecipeHubException(System.Net.HttpStatusCode.NotFound, "UserId does not match any entity in database.");
 
-            await UpdateEntity(user, userDTO);
-            return user;
+            await UpdateEntity(existingUser, user);
+            return existingUser;
         }
 
         public async Task DeleteUser(int userId)

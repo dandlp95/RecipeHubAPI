@@ -5,11 +5,11 @@ namespace RecipeHubAPI.Repository.Interface
 {
     public interface IUserRepository
     {
-        Task<UserDTO?> Authenticate(UserLogin credentials);
+        Task<User?> Authenticate(UserLogin credentials);
         Task<List<User>> GetAllUsers();
         Task<User> GetUser(int userId);
         Task CreateUser(User user);
-        Task<User> UpdateUser(UserUpdate userDTO);
+        Task<User> UpdateUser(User user);
         Task DeleteUser(int userId);
     }
 }

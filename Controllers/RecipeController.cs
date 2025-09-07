@@ -16,15 +16,13 @@ namespace RecipeHubAPI.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IExceptionHandler _exceptionHandler;
-        private readonly IRecipeRepository _dbRecipe;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IRecipeService _recipeService;
         private readonly IMeasurementUnitRepository _measurementUnitRepository;
-        public RecipeController(IMapper mapper, IExceptionHandler exceptionHandler, IRecipeRepository dbRecipe, ICategoryRepository categoryRepository, IRecipeService recipeService, IMeasurementUnitRepository measurementUnitRepository)
+        public RecipeController(IMapper mapper, IExceptionHandler exceptionHandler, ICategoryRepository categoryRepository, IRecipeService recipeService, IMeasurementUnitRepository measurementUnitRepository)
         {
             _mapper = mapper;
             _exceptionHandler = exceptionHandler;
-            _dbRecipe = dbRecipe;
             _categoryRepository = categoryRepository;
             _recipeService = recipeService;
             _measurementUnitRepository = measurementUnitRepository;

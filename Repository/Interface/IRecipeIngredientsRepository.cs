@@ -1,14 +1,14 @@
-﻿using RecipeHubAPI.Models.DTO.RecipeDTOs;
+﻿using RecipeHubAPI.Models;
 
 namespace RecipeHubAPI.Repository.Interface
 {
     public interface IRecipeIngredientsRepository
     {
-        Task AddRecipeIngredient(RecipeIngredientDTO recipeIngredientDTO);
-        Task AddRecipeIngredients(List<RecipeIngredientDTO> recipeIngredientDTOs);
-        Task UpdateRecipeIngredient(RecipeIngredientDTO recipeIngredientDTO);
-        Task DeleteRecipeIngredient(RecipeIngredientDTO recipeIngredientDTO);
+        Task AddRecipeIngredient(RecipeIngredient recipeIngredient);
+        Task AddRecipeIngredients(List<RecipeIngredient> recipeIngredients);
+        Task UpdateRecipeIngredient(RecipeIngredient recipeIngredient);
+        Task DeleteRecipeIngredient(RecipeIngredient recipeIngredient);
         Task DeleteIngredientsByRecipeId(int recipeId);
-        Task<List<RecipeIngredientDTO>> GetRecipeIngredientsByRecipeId(int recipeId);
+        Task<List<RecipeIngredient>> GetRecipeIngredientsByRecipeId(int recipeId);
     }
 }

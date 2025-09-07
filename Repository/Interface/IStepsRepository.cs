@@ -1,14 +1,14 @@
-﻿using RecipeHubAPI.Models.DTO.RecipeDTOs;
+﻿using RecipeHubAPI.Models;
 
 namespace RecipeHubAPI.Repository.Interface
 {
     public interface IStepsRepository
     {
-        Task AddStep(StepDTO stepDTO);
-        Task AddSteps(List<StepDTO> stepDTOs);
-        Task UpdateStep(StepDTO stepDTO);
-        Task DeleteStep(StepDTO stepDTO);
+        Task AddStep(Step step);
+        Task AddSteps(List<Step> steps);
+        Task UpdateStep(Step step);
+        Task DeleteStep(Step step);
         Task DeleteStepsByRecipeId(int recipeId);
-        Task<List<StepDTO>> GetStepsByRecipeId(int recipeId);
+        Task<List<Step>> GetStepsByRecipeId(int recipeId);
     }
 }

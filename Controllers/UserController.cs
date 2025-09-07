@@ -124,17 +124,18 @@ namespace RecipeHubAPI.Controllers
                     throw new RecipeHubException(HttpStatusCode.BadRequest, "Invalid credentials.");
                 }
 
-                UserDTO? authenticatedUser = await _dbUser.Authenticate(userInfo);
+                User? authenticatedUser = await _dbUser.Authenticate(userInfo);
                 if (authenticatedUser is null)
                 {
                     return Unauthorized();
                 }
-                string userToken = _tokenService.GetToken(authenticatedUser.UserName, authenticatedUser.UserId);
+                UserDTO authenticatedUserDTO = _mapper.Map<UserDTO>(authenticatedUser);
+                string userToken = _tokenService.GetToken(authenticatedUserDTO.UserName, authenticatedUserDTO.UserId);
                 _response.IsSuccess = true;
                 _response.Token = userToken;
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Errors = null;
-                _response.Result = authenticatedUser;
+                _response.Result = authenticatedUserDTO;
 
                 return Ok(_response);
 
