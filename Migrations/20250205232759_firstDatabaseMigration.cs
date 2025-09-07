@@ -39,7 +39,7 @@ namespace RecipeHubAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ingredients",
+                name: "RecipeIngredients",
                 columns: table => new
                 {
                     IngredientId = table.Column<int>(type: "int", nullable: false)
@@ -112,7 +112,7 @@ namespace RecipeHubAPI.Migrations
                     table.ForeignKey(
                         name: "FK_ShoppingListIngredients_Ingredients_IngredientId",
                         column: x => x.IngredientId,
-                        principalTable: "Ingredients",
+                        principalTable: "RecipeIngredients",
                         principalColumn: "IngredientId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -221,7 +221,7 @@ namespace RecipeHubAPI.Migrations
                     table.ForeignKey(
                         name: "FK_RecipeIngredients_Ingredients_IngredientId",
                         column: x => x.IngredientId,
-                        principalTable: "Ingredients",
+                        principalTable: "RecipeIngredients",
                         principalColumn: "IngredientId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -345,7 +345,7 @@ namespace RecipeHubAPI.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Ingredients");
+                name: "RecipeIngredients");
 
             migrationBuilder.DropTable(
                 name: "Measurements");

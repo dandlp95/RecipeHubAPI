@@ -26,7 +26,7 @@ namespace RecipeHubAPI.Services.Implementation
         public async Task<int> CreateRecipe(CompleteRecipeDTO completeRecipeDTO)
         {
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(completeRecipeDTO);
-            List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.Ingredients;
+            List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.RecipeIngredients;
             List<StepDTO> stepDTOs = completeRecipeDTO.Steps;
             List<CategoryDTO> categoryDTOs = completeRecipeDTO.Categories;
             
@@ -55,12 +55,12 @@ namespace RecipeHubAPI.Services.Implementation
         public async Task UpdateRecipe(CompleteRecipeDTO completeRecipeDTO, int userId)
         {
             RecipeDTO recipeDTO = _mapper.Map<RecipeDTO>(completeRecipeDTO);
-            List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.Ingredients;
-            List<StepDTO> stepDTOs = completeRecipeDTO.Steps;
+            List<RecipeIngredientDTO> recipeIngredientDTOs = completeRecipeDTO.RecipeIngredients;
+            List<StepDTO> stepDTOs = completeRecipeDTO.Steps;                   
             List<CategoryDTO> categoryDTOs = completeRecipeDTO.Categories;
             
             await _recipeRepository.ExecuteInTransaction(async () =>
-            {
+            {   
                 // Update recipe
                 await _recipeRepository.UpdateRecipe(recipeDTO, userId, recipeDTO.RecipeId);
 
@@ -105,7 +105,7 @@ namespace RecipeHubAPI.Services.Implementation
                 List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(recipeId);
                 List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(recipeId, userId);
                 CompleteRecipeDTO completeRecipeDTO = _mapper.Map<CompleteRecipeDTO>(recipeDTO);
-                completeRecipeDTO.Ingredients = recipeIngredientDTOs;
+                completeRecipeDTO.RecipeIngredients = recipeIngredientDTOs;
                 completeRecipeDTO.Steps = stepDTOs;
                 completeRecipeDTO.Categories = categoryDTOs;
                 return completeRecipeDTO;
@@ -118,13 +118,18 @@ namespace RecipeHubAPI.Services.Implementation
             List<CompleteRecipeDTO> completeRecipeDTOs = await _recipeRepository.ExecuteInTransaction(async () =>
             {
                 List<RecipeDTO> recipeDTOs = await _recipeRepository.GetRecipes(userId, groupId);
+                if(!recipeDTOs.Any() || recipeDTOs == null )
+                {
+                    return [];
+                }
+
                 List<CompleteRecipeDTO> completeRecipeDTOs = _mapper.Map<List<CompleteRecipeDTO>>(recipeDTOs);
                 foreach (var completeRecipeDTO in completeRecipeDTOs)
                 {
-                    List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(completeRecipeDTO.RecipeId);
-                    List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(completeRecipeDTO.RecipeId);
-                    List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(completeRecipeDTO.RecipeId, userId);
-                    completeRecipeDTO.Ingredients = recipeIngredientDTOs;
+                    List<RecipeIngredientDTO> recipeIngredientDTOs = await _recipeIngredientsRepository.GetRecipeIngredientsByRecipeId(completeRecipeDTO?.RecipeId ?? 0);
+                    List<StepDTO> stepDTOs = await _stepsRepository.GetStepsByRecipeId(completeRecipeDTO?.RecipeId ?? 0);
+                    List<CategoryDTO> categoryDTOs = await _categoryRepository.GetCategoryByRecipeId(completeRecipeDTO?.RecipeId ?? 0, userId);
+                    completeRecipeDTO.RecipeIngredients = recipeIngredientDTOs;
                     completeRecipeDTO.Steps = stepDTOs;
                     completeRecipeDTO.Categories = categoryDTOs;
                 }
@@ -134,6 +139,6 @@ namespace RecipeHubAPI.Services.Implementation
             
             return completeRecipeDTOs;
         }
-
+ 
     }
 }

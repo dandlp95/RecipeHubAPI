@@ -34,7 +34,7 @@ namespace RecipeHubAPI.Database
         public DbSet<Category> Categories { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupRecipe> GroupRecipes { get; set; }
-        //public DbSet<Ingredient> Ingredients { get; set; }
+        //public DbSet<Ingredient> RecipeIngredients { get; set; }
         public DbSet<MeasurementUnit> MeasurementUnits { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }

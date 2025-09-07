@@ -33,7 +33,7 @@ namespace RecipeHubAPI.Migrations
                 table: "ShoppingListIngredients");
 
             migrationBuilder.DropTable(
-                name: "Ingredients");
+                name: "RecipeIngredients");
 
             migrationBuilder.DropIndex(
                 name: "IX_ShoppingListIngredients_IngredientId",
@@ -573,7 +573,7 @@ namespace RecipeHubAPI.Migrations
                 column: "MeasurementUnitId");
 
             migrationBuilder.CreateTable(
-                name: "Ingredients",
+                name: "RecipeIngredients",
                 columns: table => new
                 {
                     IngredientId = table.Column<int>(type: "int", nullable: false)
@@ -609,7 +609,7 @@ namespace RecipeHubAPI.Migrations
                 name: "FK_RecipeIngredients_Ingredients_IngredientId",
                 table: "RecipeIngredients",
                 column: "IngredientId",
-                principalTable: "Ingredients",
+                principalTable: "RecipeIngredients",
                 principalColumn: "IngredientId",
                 onDelete: ReferentialAction.Cascade);
 
@@ -633,7 +633,7 @@ namespace RecipeHubAPI.Migrations
                 name: "FK_ShoppingListIngredients_Ingredients_IngredientId",
                 table: "ShoppingListIngredients",
                 column: "IngredientId",
-                principalTable: "Ingredients",
+                principalTable: "RecipeIngredients",
                 principalColumn: "IngredientId",
                 onDelete: ReferentialAction.Cascade);
 

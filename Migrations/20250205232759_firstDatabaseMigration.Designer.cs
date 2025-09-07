@@ -99,7 +99,7 @@ namespace RecipeHubAPI.Migrations
 
                     b.HasKey("IngredientId");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("RecipeIngredients");
                 });
 
             modelBuilder.Entity("RecipeHubAPI.Models.MeasurementUnit", b =>

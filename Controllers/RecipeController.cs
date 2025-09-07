@@ -117,14 +117,27 @@ namespace RecipeHubAPI.Controllers
 
                 int recipeId = await _recipeService.CreateRecipe(recipeCreateDTO);
 
-                return CreatedAtAction(nameof(GetRecipe), new { userId, recipeId });
+                response.Result = new { recipeId = recipeId };
+                response.StatusCode = System.Net.HttpStatusCode.Created;
+                response.Errors = null;
+                response.IsSuccess = true;
+
+                return StatusCode(201, response);
             }
             catch (RecipeHubException ex)
             {
+                response.Result = null;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                response.Errors = new List<string> { ex.Message };
+                response.IsSuccess = false;
                 return _exceptionHandler.returnExceptionResponse(ex, response);
             }
             catch (Exception ex)
             {
+                response.Result = null;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                response.Errors = new List<string> { ex.Message };
+                response.IsSuccess = false;
                 return _exceptionHandler.returnExceptionResponse(ex, response);
             }
         }
